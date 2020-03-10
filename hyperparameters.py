@@ -1,0 +1,13 @@
+
+
+# General
+MAP_SIZE_x = 7
+MAP_SIZE_y = 7
+CHANNELS = 6
+
+
+# Model
+FILTERS = 32
+KERNEL_SIZE = (3,3)
+EPSILON = 0.01
+BATCH_SIZE = 2
