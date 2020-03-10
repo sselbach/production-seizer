@@ -39,3 +39,41 @@ def get_window_at(contents, x, y, window_size=7):
             window[row, col, 5] = square.production if square.owner == 0 else 0
 
     return window
+
+def get_windows(contents, window_size = 7):
+    """
+    Returns list of windows for each square owned by the Bot
+    """
+    map_size_x = len(contents[0])
+    map_size_y = len(contents)
+
+    contents_sliced = np.zeros((map_size_y, map_size_x, 6))
+
+    owned_squares = []
+
+    for row in range(map_size_y):
+        for col in range(map_size_x):
+
+            square = contents[row][col]
+
+            if(square.owner == 1):
+                owned_squares.append((square.x, square.y))
+
+            contents_sliced[row, col, 0] = square.strength if square.owner == 1 else 0
+            contents_sliced[row, col, 1] = square.strength if square.owner == 2 else 0
+            contents_sliced[row, col, 2] = square.strength if square.owner == 0 else 0
+
+            # production of player 1, player 2 and neutral
+            contents_sliced[row, col, 3] = square.production if square.owner == 1 else 0
+            contents_sliced[row, col, 4] = square.production if square.owner == 2 else 0
+            contents_sliced[row, col, 5] = square.production if square.owner == 0 else 0
+
+    windows = []
+    for x, y in owned_squares:
+
+        half = int(window_size / 2)
+
+        window = contents_sliced[y - half : y + half + 1, x - half : x + half + 1, : ]
+        windows.append(window)
+
+    return np.array(windows)

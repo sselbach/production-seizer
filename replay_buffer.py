@@ -36,11 +36,11 @@ class ReplayBuffer:
         except FileNotFoundError:
             open("buffer.pickle", "a").close()
 
-    def add_tuple(self, old_state, action, reward, new_state):
+    def add_tuple(self, old_state, action, reward, new_state, terminal):
         """
         Adds a SARS tuple to the buffer
         """
-        self.buffer.append((old_state, action, reward, new_state))
+        self.buffer.append((old_state, action, reward, new_state, terminal))
 
         if(self.count() > self.size):
             self.buffer.pop(0)
