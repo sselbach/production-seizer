@@ -6,6 +6,8 @@ from hyperparameters import *
 from hlt import NORTH, EAST, SOUTH, WEST, STILL, Move, Square
 import random
 import sys
+import glob
+import os
 
 # if running cuda type gpu while excecuting in the terminal
 if 'gpu' in sys.argv:
@@ -54,9 +56,39 @@ class ProtoSeizer(Model):
         # return action
         return action
 
+    def save(self, model_dir, name):
+        """
+        Save weights of current configuration.
+        """
+        self.save_weights(model_dir + name)
+
+    def load_last(self, model_dir):
+        """
+        Loads the latest model.
+        """
+        list_of_files = glob.glob(model_dir+'*') # * means all if need specific format then *.csv
+        latest_file = max(list_of_files, key=os.path.getctime)
+        latest_file = latest_file.rsplit('.',1)[0]
+        self.load_weights(latest_file)
+
+    def load_random(self, model_dir):
+        """
+        Loads one model at random.
+        """
+        while True:
+            random_file = random.choice(os.listdir(model_dir))
+            if (random_file!='checkpoint'):
+                break
+        random_file = random_file.rsplit('.',1)[0]
+        self.load_weights(model_dir+random_file)
+
+
 if __name__ == "__main__":
     model = ProtoSeizer()
     print("initialized")
     # create fake input (1,7,7,6)
     input_map = tf.random.normal(shape=(BATCH_SIZE,MAP_SIZE_x,MAP_SIZE_y,CHANNELS))
     model.get_action(input_map)
+    model.save('models/proto1/', 't2')
+    model.load_last('models/proto1/')
+    print("loaded")
