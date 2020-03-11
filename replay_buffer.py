@@ -35,6 +35,8 @@ class ReplayBuffer:
                 self.buffer = pickle.load(file)
         except FileNotFoundError:
             open("buffer.pickle", "a").close()
+        except EOFError:
+            return
 
     def add_tuple(self, old_state, action, reward, new_state, terminal):
         """

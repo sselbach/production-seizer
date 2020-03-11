@@ -1,4 +1,8 @@
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+
 import tensorflow as tf
+tf.get_logger().setLevel('ERROR')
 from tensorflow.keras.layers import Layer
 from tensorflow.keras import  Model
 import numpy as np
@@ -7,7 +11,7 @@ from hlt import NORTH, EAST, SOUTH, WEST, STILL, Move, Square
 import random
 import sys
 import glob
-import os
+from datetime import datetime
 
 # if running cuda type gpu while excecuting in the terminal
 if 'gpu' in sys.argv:
@@ -49,25 +53,31 @@ class ProtoSeizer(Model):
         # pick position of actions (number between 0 and 4)
         if random.random()<EPSILON:
             # make random choice with probability of epsilon
-            action = tf.random.uniform(shape=[BATCH_SIZE], maxval=len(rewards), minval=0, dtype=tf.int32)
+            action = tf.random.uniform(shape=tf.shape(x)[0], maxval=len(rewards), minval=0, dtype=tf.int32)
         else:
             # else pick action with maximumm reward
             action = tf.math.argmax(rewards, axis=-1)
         # return action
         return action
 
-    def save(self, model_dir, name):
+    def save(self, model_dir):
         """
         Save weights of current configuration.
         """
-        self.save_weights(model_dir + name)
+        self.save_weights(model_dir +  datetime.now().strftime("%d-%m-%Y_%I-%M-%S_%p"))
 
     def load_last(self, model_dir):
         """
         Loads the latest model.
         """
         list_of_files = glob.glob(model_dir+'*') # * means all if need specific format then *.csv
-        latest_file = max(list_of_files, key=os.path.getctime)
+        if len(list_of_files) <=  1:
+            input_map = tf.random.normal(shape=(BATCH_SIZE,MAP_SIZE_x,MAP_SIZE_y,CHANNELS))
+            self.get_action(input_map)
+            self.save_weights(model_dir + 'random_initialization')
+        os.chdir(model_dir)
+        list_of_files = sorted(os.listdir(os.getcwd()), key=os.path.getmtime)
+        latest_file = list_of_files[-1]
         latest_file = latest_file.rsplit('.',1)[0]
         self.load_weights(latest_file)
 
@@ -87,8 +97,9 @@ if __name__ == "__main__":
     model = ProtoSeizer()
     print("initialized")
     # create fake input (1,7,7,6)
-    input_map = tf.random.normal(shape=(BATCH_SIZE,MAP_SIZE_x,MAP_SIZE_y,CHANNELS))
-    model.get_action(input_map)
-    model.save('models/proto1/', 't2')
-    model.load_last('models/proto1/')
+    #for i in range(5):
+    #    input_map = tf.random.normal(shape=(BATCH_SIZE,MAP_SIZE_x,MAP_SIZE_y,CHANNELS))
+    #    actions = model.get_action(input_map)
+    #    model.save('models/prototest/')
+    model.load_last('models/prototest/')
     print("loaded")
