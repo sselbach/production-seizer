@@ -2,6 +2,8 @@ import hlt
 from hlt import NORTH, EAST, SOUTH, WEST, STILL, Move, Square
 import random
 
+
+
 import window
 import signal
 
@@ -24,7 +26,7 @@ proto.load_last("models/")
 
 def termination_handler(signal, frame):
     r.save_to_file()
-    proto.save_weights("models/")
+    proto.save("models/")
 
 signal.signal(signal.SIGTERM, termination_handler)
 
