@@ -5,9 +5,11 @@ import window
 import signal
 from proto import ProtoSeizer
 from replay_buffer import ReplayBuffer
+import tensorflow as tf
+import sys
 
 if 'gpu' in sys.argv:
-    gpus = tf.config.experimental.list_phygisical_devices('GPU')
+    gpus = tf.config.experimental.list_physical_devices('GPU')
     tf.config.experimental.set_memory_growth(gpus[0], True)
 
 logfile = open("logfile.log", "w+")
@@ -37,6 +39,7 @@ logfile.write("HELLO")
 ## START MAIN LOOP
 while True:
 
+    print("sth")
     logfile.write("BLA2")
 
     owned_squares, current_states = window.get_windows(game_map.contents)
