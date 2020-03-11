@@ -2,8 +2,6 @@ import hlt
 from hlt import NORTH, EAST, SOUTH, WEST, STILL, Move, Square
 import random
 
-
-
 import window
 import signal
 
