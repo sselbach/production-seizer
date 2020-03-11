@@ -71,7 +71,6 @@ class ProtoSeizer(Model):
         Loads the latest model.
         """
         list_of_files = glob.glob(model_dir+'*') # * means all if need specific format then *.csv
-<<<<<<< HEAD
         if len(list_of_files) <=  1:
             input_map = tf.random.normal(shape=(BATCH_SIZE,MAP_SIZE_x,MAP_SIZE_y,CHANNELS))
             self.get_action(input_map)
@@ -79,17 +78,6 @@ class ProtoSeizer(Model):
         os.chdir(model_dir)
         list_of_files = sorted(os.listdir(os.getcwd()), key=os.path.getmtime)
         latest_file = list_of_files[-1]
-=======
-        print(list_of_files)
-        if len(list_of_files) == 0:
-            print("BLA")
-            input_map = tf.random.normal(shape=(BATCH_SIZE,MAP_SIZE_x,MAP_SIZE_y,CHANNELS))
-            self.get_action(input_map)
-            self.save_weights(model_dir, 'random_initialization')
-            list_of_files = glob.glob(model_dir+'*')
-
-        latest_file = max(list_of_files, key=os.path.getctime)
->>>>>>> fb1bfa0402e5b43f59ef4d6449ee3617e0505872
         latest_file = latest_file.rsplit('.',1)[0]
         self.load_weights(latest_file)
 
@@ -109,9 +97,9 @@ if __name__ == "__main__":
     model = ProtoSeizer()
     print("initialized")
     # create fake input (1,7,7,6)
-    for i in range(5):
-        input_map = tf.random.normal(shape=(BATCH_SIZE,MAP_SIZE_x,MAP_SIZE_y,CHANNELS))
-        actions = model.get_action(input_map)
-        model.save('models/prototest/')
+    #for i in range(5):
+    #    input_map = tf.random.normal(shape=(BATCH_SIZE,MAP_SIZE_x,MAP_SIZE_y,CHANNELS))
+    #    actions = model.get_action(input_map)
+    #    model.save('models/prototest/')
     model.load_last('models/prototest/')
     print("loaded")
