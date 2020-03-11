@@ -1,3 +1,6 @@
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+
 import tensorflow as tf
 from tensorflow.keras.layers import Layer
 from tensorflow.keras import  Model
@@ -68,6 +71,7 @@ class ProtoSeizer(Model):
         Loads the latest model.
         """
         list_of_files = glob.glob(model_dir+'*') # * means all if need specific format then *.csv
+        print(list_of_files)
         if len(list_of_files) == 0:
             print("BLA")
             input_map = tf.random.normal(shape=(BATCH_SIZE,MAP_SIZE_x,MAP_SIZE_y,CHANNELS))
