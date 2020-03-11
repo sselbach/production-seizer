@@ -67,6 +67,12 @@ class ProtoSeizer(Model):
         Loads the latest model.
         """
         list_of_files = glob.glob(model_dir+'*') # * means all if need specific format then *.csv
+        if len(list_of_files) == 0:
+            input_map = tf.random.normal(shape=(BATCH_SIZE,MAP_SIZE_x,MAP_SIZE_y,CHANNELS))
+            self.get_action(input_map)
+            self.save(model_dir, 'random_initialization')
+            list_of_files = glob.glob(model_dir+'*')
+
         latest_file = max(list_of_files, key=os.path.getctime)
         latest_file = latest_file.rsplit('.',1)[0]
         self.load_weights(latest_file)
@@ -88,7 +94,7 @@ if __name__ == "__main__":
     print("initialized")
     # create fake input (1,7,7,6)
     input_map = tf.random.normal(shape=(BATCH_SIZE,MAP_SIZE_x,MAP_SIZE_y,CHANNELS))
-    model.get_action(input_map)
-    model.save('models/proto1/', 't2')
-    model.load_last('models/proto1/')
+    #model.get_action(input_map)
+    #model.save('models/proto1/', 't2')
+    model.load_last('models/prototest/')
     print("loaded")
