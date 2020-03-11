@@ -2,7 +2,6 @@ import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 import tensorflow as tf
-tf.get_logger()..setLevel('ERROR')
 from tensorflow.keras.layers import Layer
 from tensorflow.keras import  Model
 import numpy as np
@@ -11,11 +10,12 @@ from hlt import NORTH, EAST, SOUTH, WEST, STILL, Move, Square
 import random
 import sys
 import glob
+import os
 from datetime import datetime
 
 # if running cuda type gpu while excecuting in the terminal
 if 'gpu' in sys.argv:
-    gpus = tf.config.experimental.list_physical_devices('GPU')
+    gpus = tf.config.experimental.list_phygisical_devices('GPU')
     tf.config.experimental.set_memory_growth(gpus[0], True)
 
 class ProtoSeizer(Model):

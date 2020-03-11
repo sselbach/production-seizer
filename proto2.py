@@ -9,7 +9,7 @@ from replay_buffer import ReplayBuffer
 if 'gpu' in sys.argv:
     gpus = tf.config.experimental.list_phygisical_devices('GPU')
     tf.config.experimental.set_memory_growth(gpus[0], True)
-    
+
 logfile = open("logfile.log", "w+")
 
 myID, game_map = hlt.get_init()
