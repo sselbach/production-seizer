@@ -4,6 +4,13 @@ import numpy as np
 from window import convert_map_to_numpy
 
 def visualize_policy(contents, policy, mode="window"):
+    """Visualizes a game map and a policy for player 1.
+
+    contents: game map in halite format
+    policy: policy which action to take at which square, a 2D np.ndarray
+    mode: 'window' or 'inline', whether to call plt.plot() or return the figure
+    """
+
     map = convert_map_to_numpy(contents, include_owner_channel=True)
 
     fig = plt.figure(dpi=150, figsize=(10, 10))
@@ -47,4 +54,7 @@ def visualize_policy(contents, policy, mode="window"):
         s=(strength[policy == 4] + 0.2) * 100
     )
 
-    fig.show()
+    if mode == "window":
+        fig.show()
+    else:
+        return fig
