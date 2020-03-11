@@ -50,7 +50,7 @@ class ProtoSeizer(Model):
         # pick position of actions (number between 0 and 4)
         if random.random()<EPSILON:
             # make random choice with probability of epsilon
-            action = tf.random.uniform(shape=[BATCH_SIZE], maxval=len(rewards), minval=0, dtype=tf.int32)
+            action = tf.random.uniform(shape=tf.shape(x)[0], maxval=len(rewards), minval=0, dtype=tf.int32)
         else:
             # else pick action with maximumm reward
             action = tf.math.argmax(rewards, axis=-1)
@@ -68,17 +68,17 @@ class ProtoSeizer(Model):
         Loads the latest model.
         """
         list_of_files = glob.glob(model_dir+'*') # * means all if need specific format then *.csv
-        if len(list_of_files) == 0:
+        if len(list_of_files) <=  1:
             input_map = tf.random.normal(shape=(BATCH_SIZE,MAP_SIZE_x,MAP_SIZE_y,CHANNELS))
             self.get_action(input_map)
-            self.save(model_dir, 'random_initialization')
-            list_of_files = glob.glob(model_dir+'*')
-
-        latest_file = max(list_of_files, key=os.path.getctime)
+            self.save_weights(model_dir + 'random_initialization')
+        os.chdir(model_dir)
+        list_of_files = sorted(os.listdir(os.getcwd()), key=os.path.getmtime)
+        latest_file = list_of_files[-1]
         latest_file = latest_file.rsplit('.',1)[0]
         self.load_weights(latest_file)
 
-    def load_random(self, model_dir):g
+    def load_random(self, model_dir):
         """
         Loads one model at random.
         """
@@ -94,8 +94,9 @@ if __name__ == "__main__":
     model = ProtoSeizer()
     print("initialized")
     # create fake input (1,7,7,6)
-    input_map = tf.random.normal(shape=(BATCH_SIZE,MAP_SIZE_x,MAP_SIZE_y,CHANNELS))
-    #model.get_action(input_map)
-    #model.save('models/proto1/', 't2')
+    for i in range(5):
+        input_map = tf.random.normal(shape=(BATCH_SIZE,MAP_SIZE_x,MAP_SIZE_y,CHANNELS))
+        actions = model.get_action(input_map)
+        model.save('models/prototest/')
     model.load_last('models/prototest/')
     print("loaded")
