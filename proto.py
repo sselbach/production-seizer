@@ -1,3 +1,6 @@
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+
 import tensorflow as tf
 from tensorflow.keras.layers import Layer
 from tensorflow.keras import  Model
@@ -68,6 +71,7 @@ class ProtoSeizer(Model):
         Loads the latest model.
         """
         list_of_files = glob.glob(model_dir+'*') # * means all if need specific format then *.csv
+<<<<<<< HEAD
         if len(list_of_files) <=  1:
             input_map = tf.random.normal(shape=(BATCH_SIZE,MAP_SIZE_x,MAP_SIZE_y,CHANNELS))
             self.get_action(input_map)
@@ -75,6 +79,17 @@ class ProtoSeizer(Model):
         os.chdir(model_dir)
         list_of_files = sorted(os.listdir(os.getcwd()), key=os.path.getmtime)
         latest_file = list_of_files[-1]
+=======
+        print(list_of_files)
+        if len(list_of_files) == 0:
+            print("BLA")
+            input_map = tf.random.normal(shape=(BATCH_SIZE,MAP_SIZE_x,MAP_SIZE_y,CHANNELS))
+            self.get_action(input_map)
+            self.save_weights(model_dir, 'random_initialization')
+            list_of_files = glob.glob(model_dir+'*')
+
+        latest_file = max(list_of_files, key=os.path.getctime)
+>>>>>>> fb1bfa0402e5b43f59ef4d6449ee3617e0505872
         latest_file = latest_file.rsplit('.',1)[0]
         self.load_weights(latest_file)
 
