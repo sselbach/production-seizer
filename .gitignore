@@ -1,6 +1,7 @@
 __pycache__
 *.log
 *.hlt
+*.pyc
 *.exe
 *.pickle
 halite
