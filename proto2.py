@@ -11,8 +11,8 @@ from replay_buffer import ReplayBuffer
 
 logfile = open("logfile.log", "w+")
 
-#myID, game_map = hlt.get_init()
-#hlt.send_init("Prototype 2")
+myID, game_map = hlt.get_init()
+hlt.send_init("Prototype 2")
 
 r = ReplayBuffer(1000)
 r.load_from_file()
@@ -22,7 +22,7 @@ r.load_from_file()
 logfile.write("BLA")
 
 proto = ProtoSeizer()
-proto.load_last("models/")
+#proto.load_last("models/")
 
 def termination_handler(signal, frame):
     r.save_to_file()
