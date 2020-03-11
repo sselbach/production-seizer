@@ -8,6 +8,7 @@ import random
 import sys
 import glob
 import os
+from datetime import datetime
 
 # if running cuda type gpu while excecuting in the terminal
 if 'gpu' in sys.argv:
@@ -56,11 +57,11 @@ class ProtoSeizer(Model):
         # return action
         return action
 
-    def save(self, model_dir, name):
+    def save(self, model_dir):
         """
         Save weights of current configuration.
         """
-        self.save_weights(model_dir + name)
+        self.save_weights(model_dir +  datetime.now().strftime("%d-%m-%Y_%I-%M-%S_%p"))
 
     def load_last(self, model_dir):
         """
@@ -77,7 +78,7 @@ class ProtoSeizer(Model):
         latest_file = latest_file.rsplit('.',1)[0]
         self.load_weights(latest_file)
 
-    def load_random(self, model_dir):
+    def load_random(self, model_dir):g
         """
         Loads one model at random.
         """
