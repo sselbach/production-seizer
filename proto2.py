@@ -8,6 +8,8 @@ from replay_buffer import ReplayBuffer
 import tensorflow as tf
 import sys
 import logging
+import reward
+
 LOG_FILENAME = 'example.log'
 logging.basicConfig(filename=LOG_FILENAME,level=logging.DEBUG)
 
@@ -65,7 +67,10 @@ while True:
     new_states = window0.get_windows_for_squares(game_map.contents, owned_squares)
     logging.debug("NEW STATES")
     logging.debug(new_states)
-    tuples = zip(current_states, moves, new_states)
+    rewards = [reward.reward(s) for s in new_states]
+    logging.debug("REWARDS")
+    logging.debug(rewards)
+    tuples = zip(current_states, moves, rewards, new_states)
 
     r.add_tuples(tuples)
     logging.debug("added tuples")
