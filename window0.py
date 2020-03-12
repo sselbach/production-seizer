@@ -1,4 +1,5 @@
 import numpy as np
+import logging
 
 def get_window_at(contents, x, y, window_size=7):
     """Given the map in halite format, returns a window of `window_size` centered at `x` and `y`.
@@ -73,8 +74,12 @@ def get_windows(contents, window_size = 7):
 
         half = int(window_size / 2)
 
-        window = contents_sliced[square.y - half : square.y + half + 1, square.x - half : square.x + half + 1, : ]
+        rolled = np.roll(contents_sliced, (map_size_y//2 - square.y, map_size_x//2 - square.x), (0, 1))
+        #logging.debug(rolled)
+        window = rolled[map_size_y//2-half : map_size_y//2 + half + 1, map_size_x//2 -half : map_size_x//2 + half + 1, : ]
         windows.append(window)
+
+        logging.debug(window.shape)
 
     return owned_squares, np.array(windows)
 
@@ -102,8 +107,9 @@ def get_windows_for_squares(contents, owned_squares, window_size = 7):
     for square in owned_squares:
 
         half = int(window_size / 2)
-
-        window = contents_sliced[square.y - half : square.y + half + 1, square.x - half : square.x + half + 1, : ]
+        rolled = np.roll(contents_sliced, (map_size_y//2 - square.y, map_size_x//2 - square.x), (0, 1))
+        #logging.debug(rolled)
+        window = rolled[map_size_y//2-half : map_size_y//2 + half + 1, map_size_x//2 -half : map_size_x//2 + half + 1, : ]
         windows.append(window)
-
+        
     return np.array(windows)

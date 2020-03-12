@@ -9,6 +9,7 @@ import tensorflow as tf
 import sys
 import logging
 import reward
+from hyperparameters import *
 
 LOG_FILENAME = 'example.log'
 logging.basicConfig(filename=LOG_FILENAME,level=logging.DEBUG)
@@ -51,14 +52,14 @@ while True:
     owned_squares, current_states = window0.get_windows(game_map.contents)
 
     logging.debug("BLA2")
-    logging.debug(current_states.shape)
+    #logging.debug(current_states.shape)
     moves = proto.get_action(current_states)
 
     moves = moves.numpy().tolist()
 
     moves = [Move(square, move) for square, move in zip(owned_squares, moves)]
 
-    logging.debug(moves)
+    #logging.debug(moves)
 
     hlt.send_frame(moves)
     logging.debug("sent frames")
@@ -66,7 +67,7 @@ while True:
     logging.debug("got frames")
     new_states = window0.get_windows_for_squares(game_map.contents, owned_squares)
     logging.debug("NEW STATES")
-    logging.debug(new_states)
+    #logging.debug(new_states)
     rewards = [reward.reward(s) for s in new_states]
     logging.debug("REWARDS")
     logging.debug(rewards)
@@ -74,3 +75,7 @@ while True:
 
     r.add_tuples(tuples)
     logging.debug("added tuples")
+
+    if len(r) >= BATCH_SIZE:
+
+        proto.train(r.get_batch(BATCH_SIZE))

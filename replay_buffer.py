@@ -18,6 +18,9 @@ class ReplayBuffer:
         """
         return len(self.buffer)
 
+    def __len__(self):
+        return self.count()
+
     def save_to_file(self):
         """
         Saves the buffer to a file

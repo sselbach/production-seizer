@@ -30,6 +30,8 @@ class ProtoSeizer(Model):
         self.flatten = tf.keras.layers.Flatten()
         # dense with 5 output neurons, no activation
         self.dense = tf.keras.layers.Dense(units=5)
+        self.loss_function = tf.keras.losses.MeanSquaredError()
+        self.optimizer = tf.keras.optimizers.Adam()
 
 
     # input x:(MAP_SIZE_x, MAP_SIZE_y, CHANNELS) map
@@ -105,6 +107,40 @@ class ProtoSeizer(Model):
                 break
         random_file = random_file.rsplit('.',1)[0]
         self.load_weights(model_dir+random_file)
+
+
+    def train(self, batch):
+        # n times (old state, action, reward, new_state)
+        # bacth = list of last n tuples from replay ReplayBuffer
+        # get old STATES
+        old_states, actions, rewards, new_states = zip(*batch)
+        # pass through models to get q value
+        moves = [action.direction for action in actions]
+        logging.debug("Old states in training")
+        logging.debug(type(old_states))
+
+        with tf.GradientTape() as tape:
+            q_values_old = self.call(tf.convert_to_tensor(list(old_states)))
+            q_target = q_values_old.numpy()
+            # get new STATES
+            # pass new_states through models -> (batch_size, 5)
+            q_values_new = self.call(tf.convert_to_tensor(list(new_states))).numpy()
+            # pick maximum -> (batch_size)
+            max_q = np.max(q_values_new, axis=-1)
+            # compute y vector (batch_size)
+
+            for i, action in enumerate(moves):
+                logging.debug(action)
+                q_target[i, action] = rewards[i] + GAMMA * max_q[i]
+
+            loss = self.loss_function(q_values_old, q_target)
+
+            logging.debug("calculated loss (yay)")
+
+            gradients = tape.gradient(loss, self.trainable_variables)
+            #logging.debug(gradients)
+
+            self.optimizer.apply_gradients(zip(gradients, self.trainable_variables))
 
 
 if __name__ == "__main__":
