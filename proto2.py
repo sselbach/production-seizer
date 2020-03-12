@@ -54,7 +54,7 @@ while True:
 
     moves = moves.numpy().tolist()
 
-    moves = [Move(owned_squares[i], moves[i]) for i in range(len(owned_squares))]
+    moves = [Move(square, move) for square, move in zip(owned_squares, moves)]
 
     logging.debug(moves)
 
