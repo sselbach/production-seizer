@@ -63,7 +63,8 @@ while True:
     game_map.get_frame()
     logging.debug("got frames")
     new_states = window0.get_windows_for_squares(game_map.contents, owned_squares)
-    logging.debug("new statst")
+    logging.debug("NEW STATES")
+    logging.debug(new_states)
     tuples = zip(current_states, moves, new_states)
 
     r.add_tuples(tuples)

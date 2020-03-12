@@ -106,4 +106,4 @@ def get_windows_for_squares(contents, owned_squares, window_size = 7):
         window = contents_sliced[square.y - half : square.y + half + 1, square.x - half : square.x + half + 1, : ]
         windows.append(window)
 
-    return owned_squares, np.array(windows)
+    return np.array(windows)
