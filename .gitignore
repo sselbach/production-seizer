@@ -6,5 +6,6 @@ __pycache__
 *.exe
 *.pickle
 halite
+halite_mod
 models
 halite_mod
