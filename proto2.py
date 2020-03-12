@@ -32,9 +32,11 @@ proto.load_last("models/prototest/")
 logging.debug("loaded last model")
 
 def termination_handler(signal, frame):
+    logging.debug("finished episode")
+    logging.shutdown()
     r.save_to_file()
-    proto.save("models/")
-    logfile.close()
+    proto.save("models/prototest/ ")
+    sys.exit(0)
 
 signal.signal(signal.SIGTERM, termination_handler)
 
