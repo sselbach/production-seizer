@@ -34,7 +34,7 @@ logging.debug("loaded last model")
 def termination_handler(signal, frame):
     r.save_to_file()
     proto.save("models/")
-    logfile.close()
+    sys.exit(0)
 
 signal.signal(signal.SIGTERM, termination_handler)
 
@@ -52,7 +52,7 @@ while True:
 
     moves = moves.numpy().tolist()
 
-    moves = [Move(owned_squares[i], moves[i]) for i in range(len(owned_squares))]
+    moves = [Move(square, move) for square, move in zip(owned_squares, moves)]
 
     logging.debug(moves)
 
