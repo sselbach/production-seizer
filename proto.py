@@ -88,12 +88,14 @@ class ProtoSeizer(Model):
             self.get_action(input_map)
             logging.debug("made call")
             self.save_weights(model_dir + 'random_initialization')
-        os.chdir(model_dir)
-        list_of_files = sorted(os.listdir(os.getcwd()), key=os.path.getmtime)
+        list_of_files = sorted(os.listdir(model_dir), key=lambda f: os.path.getmtime(model_dir + f))
         latest_file = list_of_files[-1]
         latest_file = latest_file.rsplit('.',1)[0]
+        if latest_file == 'checkpoint':
+            latest_file = list_of_files[-2]
+            latest_file = latest_file.rsplit('.',1)[0]
         logging.debug("latest file " + latest_file)
-        self.load_weights(latest_file)
+        self.load_weights(model_dir+latest_file)
 
     def load_random(self, model_dir):
         """

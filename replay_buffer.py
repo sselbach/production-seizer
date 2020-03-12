@@ -22,7 +22,7 @@ class ReplayBuffer:
         """
         Saves the buffer to a file
         """
-        with open("buffer", "wb") as file:
+        with open("buffer.pickle", "wb") as file:
             pickle.dump(self.buffer, file)
 
     def load_from_file(self):
