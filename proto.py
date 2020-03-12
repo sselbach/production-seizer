@@ -16,8 +16,6 @@ import logging
 
 # if running cuda type gpu while excecuting in the terminal
 
-gpus = tf.config.experimental.list_physical_devices('GPU')
-tf.config.experimental.set_memory_growth(gpus[0], True)
 
 class ProtoSeizer(Model):
     def __init__(self):
