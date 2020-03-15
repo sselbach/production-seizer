@@ -14,8 +14,6 @@ import glob
 from datetime import datetime
 import logging
 
-# if running cuda type gpu while excecuting in the terminal
-
 
 class DQN(Model):
     def __init__(self):
@@ -24,12 +22,14 @@ class DQN(Model):
         Initialize Model
         """
         super().__init__()
-        # 1 conv 3x3 kernel, no padding
-        self.conv = tf.keras.layers.Conv2D(input_shape=(MAP_SIZE_x, MAP_SIZE_y, CHANNELS), filters=FILTERS, kernel_size=KERNEL_SIZE, padding='valid', activation= tf.nn.relu)
-        # flatten
-        self.flatten = tf.keras.layers.Flatten()
-        # dense with 5 output neurons, no activation
-        self.dense = tf.keras.layers.Dense(units=5)
+
+        self.layers = [
+            tf.keras.layers.Conv2D(input_shape=(MAP_SIZE_x, MAP_SIZE_y, CHANNELS), filters=FILTERS, kernel_size=KERNEL_SIZE, padding='valid', activation=tf.nn.relu)
+            tf.keras.layers.Flatten()
+            tf.keras.layers.Dense(units=10, activation=tf.nn.relu)
+            tf.keras.layers.Dense(units=5)
+        ]
+
         self.loss_function = tf.keras.losses.MeanSquaredError()
         self.optimizer = tf.keras.optimizers.Adam()
 
@@ -40,9 +40,8 @@ class DQN(Model):
         """
         Forward pass.
         """
-        x = self.conv(x)
-        x = self.flatten(x)
-        x = self.dense(x)
+        for layer in self.layers:
+            x = layer(x)
 
         return x
 
@@ -129,6 +128,5 @@ class DQN(Model):
             loss = self.loss_function(q_values_old, q_target)
 
             gradients = tape.gradient(loss, self.trainable_variables)
-            #logging.debug(gradients)
 
             self.optimizer.apply_gradients(zip(gradients, self.trainable_variables))
