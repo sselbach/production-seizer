@@ -1,3 +1,3 @@
 #!/bin/bash
 
-./halite_mod -d -t "30 30" "python rl_bot.py $1" "python RandomBot.py"
+./halite_mod -d "30 30" -t "python rl_bot.py $1" "python RandomBot.py"

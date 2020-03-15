@@ -23,10 +23,14 @@ class DQN(Model):
         """
         super().__init__()
 
-        self.layers = [
-            tf.keras.layers.Conv2D(input_shape=(MAP_SIZE_x, MAP_SIZE_y, CHANNELS), filters=FILTERS, kernel_size=KERNEL_SIZE, padding='valid', activation=tf.nn.relu)
-            tf.keras.layers.Flatten()
-            tf.keras.layers.Dense(units=10, activation=tf.nn.relu)
+        self._layers = [
+            tf.keras.layers.Conv2D(
+                input_shape=(MAP_SIZE_x, MAP_SIZE_y, CHANNELS),
+                filters=FILTERS, kernel_size=KERNEL_SIZE, padding='valid', activation=tf.nn.relu
+            ),
+
+            tf.keras.layers.Flatten(),
+            tf.keras.layers.Dense(units=10, activation=tf.nn.relu),
             tf.keras.layers.Dense(units=5)
         ]
 
@@ -40,7 +44,7 @@ class DQN(Model):
         """
         Forward pass.
         """
-        for layer in self.layers:
+        for layer in self._layers:
             x = layer(x)
 
         return x
@@ -54,15 +58,21 @@ class DQN(Model):
         rewards = self.call(x)
 
         # pick position of actions (number between 0 and 4)
-        if random.random()<EPSILON:
-            # make random choice with probability of epsilon
-            action = tf.random.uniform(shape=[tf.shape(rewards)[0]], maxval=5, minval=0, dtype=tf.int32)
-        else:
-            # else pick action with maximumm reward
-            action = tf.math.argmax(rewards, axis=-1)
 
-        # return action
-        return action
+        # Changed: don't make one random decision for the entire batch, instead decide on individual basis
+
+        randoms = np.random.uniform(0, 1, size=x.shape[0])
+
+        actions = []
+        greedy_actions = tf.math.argmax(rewards, axis=-1)
+
+        for i, r in enumerate(randoms):
+            if r < EPSILON:
+                actions.append(np.random.randint(0, 5))
+            else:
+                actions.append(greedy_actions[i])
+
+        return tf.convert_to_tensor(actions)
 
     def save(self, model_dir):
         """
