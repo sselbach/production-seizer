@@ -24,16 +24,22 @@ if 'gpu' in sys.argv:
     gpus = tf.config.experimental.list_physical_devices('GPU')
     tf.config.experimental.set_memory_growth(gpus[0], True)
 
+if 'simple_conv' in sys.argv:
+    key = 'simple_conv'
+if 'simple_no_conv' in sys.argv:
+    key = 'no_conv'
+
 myID, game_map = hlt.get_init()
 hlt.send_init("ProductionSeizer")
 logging.debug("sent init message to game")
+logging.debug(key)
 
 r = ReplayBuffer(1000)
 r.load_from_file()
 
 ## INIT MODEL
 
-proto = DQN()
+proto = DQN(key)
 logging.debug("initialized model")
 proto.load_last("models/prototest/")
 logging.debug("loaded latest model")

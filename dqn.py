@@ -20,23 +20,19 @@ from datetime import datetime
 
 
 class DQN(Model):
-    def __init__(self):
+    def __init__(self, key):
 
         """
         Initialize Model
+        different kind of Models
         """
         super().__init__()
-
-        self._layers = [
-            tf.keras.layers.Conv2D(
-                input_shape=(MAP_SIZE_x, MAP_SIZE_y, CHANNELS),
-                filters=FILTERS, kernel_size=KERNEL_SIZE, padding='valid', activation=tf.nn.relu
-            ),
-
-            tf.keras.layers.Flatten(),
-            tf.keras.layers.Dense(units=10, activation=tf.nn.relu),
-            tf.keras.layers.Dense(units=5)
-        ]
+        if (key == "simple_conv"):
+            self.init_simple_conv()
+        elif (key == "no_conv"):
+            logging.debug("in key if ")
+            self.init_no_conv()
+            logging.debug("initialized")
 
         self.loss_function = tf.keras.losses.MeanSquaredError()
         self.optimizer = tf.keras.optimizers.Adam()
@@ -144,3 +140,24 @@ class DQN(Model):
             gradients = tape.gradient(loss, self.trainable_variables)
 
             self.optimizer.apply_gradients(zip(gradients, self.trainable_variables))
+
+    def init_simple_conv(self):
+
+        self._layers = [
+            tf.keras.layers.Conv2D(
+                input_shape=(MAP_SIZE_x, MAP_SIZE_y, CHANNELS),
+                filters=FILTERS, kernel_size=KERNEL_SIZE, padding='valid', activation=tf.nn.relu
+            ),
+
+            tf.keras.layers.Flatten(),
+            tf.keras.layers.Dense(units=10, activation=tf.nn.relu),
+            tf.keras.layers.Dense(units=5)
+        ]
+
+    def init_no_conv(self):
+        logging.debug("in init")
+        self._layers = [
+            tf.keras.layers.Flatten(),
+            tf.keras.layers.Dense(units=10, activation=tf.nn.relu),
+            tf.keras.layers.Dense(units=5)
+        ]
