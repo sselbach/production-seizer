@@ -27,7 +27,7 @@ if 'gpu' in sys.argv:
 if 'simple_conv' in sys.argv:
     key = 'simple_conv'
 if 'simple_no_conv' in sys.argv:
-    key = 'no_conv'
+    key = 'simple_no_conv'
 
 myID, game_map = hlt.get_init()
 hlt.send_init("ProductionSeizer")

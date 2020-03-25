@@ -29,9 +29,9 @@ class DQN(Model):
         super().__init__()
         if (key == "simple_conv"):
             self.init_simple_conv()
-        elif (key == "no_conv"):
+        elif (key == "simple_no_conv"):
             logging.debug("in key if ")
-            self.init_no_conv()
+            self.init_simple_no_conv()
             logging.debug("initialized")
 
         self.loss_function = tf.keras.losses.MeanSquaredError()
@@ -154,7 +154,7 @@ class DQN(Model):
             tf.keras.layers.Dense(units=5)
         ]
 
-    def init_no_conv(self):
+    def init_simple_no_conv(self):
         logging.debug("in init")
         self._layers = [
             tf.keras.layers.Flatten(),
