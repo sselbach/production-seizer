@@ -15,26 +15,13 @@ import signal
 import random
 from datetime import datetime
 
+import config
+from config import key
+
 LOG_FILENAME = 'debug.log'
 logging.basicConfig(filename=LOG_FILENAME,level=logging.DEBUG)
 
 logging.warning(f"starting new episode at {datetime.now().strftime('%d-%m-%Y_%I-%M-%S_%p')}")
-
-if 'gpu' in sys.argv:
-    gpus = tf.config.experimental.list_physical_devices('GPU')
-    tf.config.experimental.set_memory_growth(gpus[0], True)
-    #tf.GPUOptions(per_process_gpu_memory_fraction=0.3)
-
-
-# default on simple conv
-key = 'simple_conv'
-
-if 'simple_conv' in sys.argv:
-    key = 'simple_conv'
-if 'simple_no_conv' in sys.argv:
-    key = 'simple_no_conv'
-if 'res_net' in sys.argv:
-    key = 'res_net'
 
 myID, game_map = hlt.get_init()
 hlt.send_init("ProductionSeizer")

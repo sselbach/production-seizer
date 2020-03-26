@@ -103,11 +103,9 @@ class DQN(Model):
         Loads one of the last n models at random.
         """
         list_of_files = glob.glob(model_dir+'*')
-        logging.debug(list_of_files)
 
         # if model directory is empty make a dummy forward pass
         if len(list_of_files) <=  1:
-            logging.debug("making dummy call")
             input_map = tf.random.normal(shape=(BATCH_SIZE,MAP_SIZE_x,MAP_SIZE_y,CHANNELS))
             self.get_action(input_map)
             self.save_weights(model_dir + 'random_initialization')
