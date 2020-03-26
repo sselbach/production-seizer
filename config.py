@@ -26,6 +26,8 @@ elif 'res_net' in sys.argv:
     key = 'res_net'
 elif 'wide_conv' in sys.argv:
     key = 'wide_conv'
+elif 'wide_no_conv' in sys.argv:
+    key = 'wide_no_conv'
 
 else:
     # default on simple conv

@@ -34,6 +34,8 @@ class DQN(Model):
             self.init_res_net()
         elif (key == "wide_conv"):
             self.init_wide_conv()
+        elif (key == "wide_no_conv"):
+            self.init_wide_no_conv()
 
         self.loss_function = tf.keras.losses.MeanSquaredError()
         self.optimizer = tf.keras.optimizers.Adam()
@@ -189,11 +191,12 @@ class DQN(Model):
     def init_wide_conv(self):
         """
         Wide convolutional Network, guided by AlexNet.
-        Conv2D: 1 (11x11)
+        Conv2D: 1
         Max Pooling
-        Conv2D: 1 (5x5)
+        Conv2D: 1
         Max Pooling
-        Conv2D: 3 (3x3)
+        Conv2D: 3
+        Flatten
         Dense: 3 (2 relu, one softmax)
         """
         self._layers = [
@@ -213,7 +216,7 @@ class DQN(Model):
 
     def init_simple_no_conv(self):
         """
-        Simple neural Network.
+        Simple Neural Network.
         Dense: 2
         """
         self._layers = [
@@ -221,6 +224,19 @@ class DQN(Model):
             tf.keras.layers.Dense(units=10, activation=tf.nn.relu),
             tf.keras.layers.Dense(units=5)
         ]
+
+    def init_wide_no_conv(self):
+        """
+        Wide ANN.
+        """
+        self._layers = [
+            tf.keras.layers.Flatten(),
+            tf.keras.layers.Dense(units=256, activation=tf.nn.relu),
+            tf.keras.layers.Dense(units=256, activation=tf.nn.relu),
+            tf.keras.layers.Dense(units=64, activation=tf.nn.relu),
+            tf.keras.layers.Dense(units=10, activation=tf.nn.relu),
+            tf.keras.layers.Dense(units=5)
+            ]
 
     def init_res_net(self):
         """
