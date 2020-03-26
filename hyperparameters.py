@@ -4,7 +4,7 @@
 MAP_SIZE_x = 7
 MAP_SIZE_y = 7
 CHANNELS = 6
-MODEL_PATH = "models/prototest/"
+MODEL_PATH = "models/current/"
 N = 5
 
 # Model

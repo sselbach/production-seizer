@@ -32,6 +32,8 @@ class DQN(Model):
             self.init_simple_no_conv()
         elif (key == "res_net"):
             self.init_res_net()
+        elif (key == "wide_conv"):
+            self.init_wide_conv()
 
         self.loss_function = tf.keras.losses.MeanSquaredError()
         self.optimizer = tf.keras.optimizers.Adam()
@@ -45,6 +47,8 @@ class DQN(Model):
         """
         for layer in self._layers:
             x = layer(x)
+            logging.debug("made call")
+            logging.debug(tf.shape(x))
 
         return x
 
@@ -55,6 +59,8 @@ class DQN(Model):
         """
         # shape : (batch_size, 5)
         rewards = self.call(x)
+        logging.debug("rewards")
+        logging.debug(tf.shape(rewards))
 
         # pick position of actions (number between 0 and 4)
         # don't make one random decision for the entire batch, instead decide on individual basis
@@ -178,6 +184,31 @@ class DQN(Model):
             tf.keras.layers.Flatten(),
             tf.keras.layers.Dense(units=10, activation=tf.nn.relu),
             tf.keras.layers.Dense(units=5)
+        ]
+
+    def init_wide_conv(self):
+        """
+        Wide convolutional Network, guided by AlexNet.
+        Conv2D: 1 (11x11)
+        Max Pooling
+        Conv2D: 1 (5x5)
+        Max Pooling
+        Conv2D: 3 (3x3)
+        Dense: 3 (2 relu, one softmax)
+        """
+        self._layers = [
+        tf.keras.layers.Conv2D(input_shape=(MAP_SIZE_x, MAP_SIZE_y, CHANNELS),
+        filters=64, kernel_size=KERNEL_SIZE, padding='same', activation=tf.nn.relu),
+        tf.keras.layers.MaxPooling2D(pool_size=(3,3), strides=2),
+        tf.keras.layers.Conv2D(filters=192, kernel_size=KERNEL_SIZE, padding='same', activation=tf.nn.relu),
+        tf.keras.layers.MaxPooling2D(pool_size=(3,3), strides=2),
+        tf.keras.layers.Conv2D(filters=384, kernel_size=(3,3), padding='same', activation=tf.nn.relu),
+        tf.keras.layers.Conv2D(filters=384, kernel_size=(3,3), padding='same', activation=tf.nn.relu),
+        tf.keras.layers.Conv2D(filters=192, kernel_size=(3,3), padding='same', activation=tf.nn.relu),
+        tf.keras.layers.Flatten(),
+        tf.keras.layers.Dense(units=256, activation=tf.nn.relu),
+        tf.keras.layers.Dense(units=10, activation=tf.nn.relu),
+        tf.keras.layers.Dense(units=5)
         ]
 
     def init_simple_no_conv(self):

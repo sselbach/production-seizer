@@ -20,7 +20,6 @@ from config import key
 
 LOG_FILENAME = 'debug.log'
 logging.basicConfig(filename=LOG_FILENAME,level=logging.DEBUG)
-
 logging.warning(f"starting new episode at {datetime.now().strftime('%d-%m-%Y_%I-%M-%S_%p')}")
 
 myID, game_map = hlt.get_init()

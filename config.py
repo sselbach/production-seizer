@@ -16,12 +16,17 @@ if 'gpu' in sys.argv:
 """
 Choice of Net Architecture.
 """
-# default on simple conv
-key = 'simple_conv'
+
 
 if 'simple_conv' in sys.argv:
     key = 'simple_conv'
-if 'simple_no_conv' in sys.argv:
+elif 'simple_no_conv' in sys.argv:
     key = 'simple_no_conv'
-if 'res_net' in sys.argv:
+elif 'res_net' in sys.argv:
     key = 'res_net'
+elif 'wide_conv' in sys.argv:
+    key = 'wide_conv'
+
+else:
+    # default on simple conv
+    key = 'simple_conv'
