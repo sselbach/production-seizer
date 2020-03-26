@@ -4,7 +4,8 @@
 MAP_SIZE_x = 7
 MAP_SIZE_y = 7
 CHANNELS = 6
-
+MODEL_PATH = "models/prototest/"
+N = 5
 
 # Model
 FILTERS = 32
@@ -12,6 +13,7 @@ KERNEL_SIZE = (3, 3)
 EPSILON = 0.3
 GAMMA = 0.95
 BATCH_SIZE = 32
+NUMBER_RES_BLOCKS = 10
 
 
 # Reward Function

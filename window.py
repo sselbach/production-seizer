@@ -39,7 +39,7 @@ def get_windows(contents, window_size = 7):
         window = rolled[map_size_y//2-half : map_size_y//2 + half + 1, map_size_x//2 -half : map_size_x//2 + half + 1, : ]
         windows.append(window)
 
-        logging.debug(window.shape)
+        #logging.debug(window.shape)
 
     return owned_squares, np.array(windows)
 
