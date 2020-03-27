@@ -11,7 +11,6 @@ import config
 from config import key
 
 
-
 myID, game_map = hlt.get_init()
 hlt.send_init("SelfplayBot")
 model = DQN(key)
@@ -21,7 +20,7 @@ model.load_random(MODEL_PATH)
 while True:
     owned_squares, current_states = window.get_windows(game_map.contents, myID)
 
-    moves = model.get_action(current_states)
+    moves = model.get_action(current_states, epsilon=False)
     moves = moves.numpy().tolist()
     moves = [Move(square, move) for square, move in zip(owned_squares, moves)]
 
