@@ -1,7 +1,7 @@
 import numpy as np
 import logging
 
-def get_windows(contents, window_size = 7):
+def get_windows(contents, ID,  window_size = 7):
     """
     Returns list of windows for each square owned by the Bot
     """
@@ -17,7 +17,7 @@ def get_windows(contents, window_size = 7):
 
             square = contents[row][col]
 
-            if(square.owner == 1):
+            if(square.owner == ID):
                 owned_squares.append(square)
 
             contents_sliced[row, col, 0] = square.strength if square.owner == 1 else 0

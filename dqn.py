@@ -49,20 +49,16 @@ class DQN(Model):
         """
         for layer in self._layers:
             x = layer(x)
-            logging.debug("made call")
-            logging.debug(tf.shape(x))
 
         return x
 
-    def get_action(self, x):
+    def get_action(self, x, epsilon=True):
         """
         Do a forward pass and return tensor of chosen actions.
         Choose either a random action or follow the policy.
         """
         # shape : (batch_size, 5)
         rewards = self.call(x)
-        logging.debug("rewards")
-        logging.debug(tf.shape(rewards))
 
         # pick position of actions (number between 0 and 4)
         # don't make one random decision for the entire batch, instead decide on individual basis
@@ -70,9 +66,8 @@ class DQN(Model):
 
         actions = []
         greedy_actions = tf.math.argmax(rewards, axis=-1)
-
         for i, r in enumerate(randoms):
-            if r < EPSILON:
+            if ((r < EPSILON) & epsilon):
                 actions.append(np.random.randint(0, 5))
             else:
                 actions.append(greedy_actions[i])
@@ -120,7 +115,6 @@ class DQN(Model):
 
         # if less then N models. just choose on randomly
         if len(list_of_files) <= N:
-            logging.debug("smaller list")
             while True:
                 random_file = random.choice(os.listdir(model_dir))
                 # avoid loading checkpoint

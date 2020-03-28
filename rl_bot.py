@@ -50,7 +50,7 @@ signal.signal(signal.SIGTERM, termination_handler)
 
 ## START MAIN LOOP
 while True:
-    owned_squares, current_states = window.get_windows(game_map.contents)
+    owned_squares, current_states = window.get_windows(game_map.contents, myID)
 
     moves = proto.get_action(current_states)
     moves = moves.numpy().tolist()
