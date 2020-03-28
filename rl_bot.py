@@ -27,7 +27,7 @@ hlt.send_init("ProductionSeizer")
 logging.debug("sent init message to game")
 logging.debug(key)
 
-r = ReplayBuffer(1000)
+r = ReplayBuffer(100000)
 r.load_from_file()
 
 ## INIT MODEL
@@ -61,7 +61,11 @@ while True:
 
     new_states = window.get_windows_for_squares(game_map.contents, owned_squares)
 
-    rewards = [reward.reward(s) for s in new_states]
+    #rewards = [reward.reward(s) for s in new_states]
+
+    rewards = [reward.reward2(current_states[i], new_states[i]) for i in range(len(owned_squares))]
+
+    logging.debug(rewards)
 
     tuples = zip(current_states, moves, rewards, new_states)
 

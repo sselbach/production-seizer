@@ -1,6 +1,6 @@
 #!/bin/bash
 
-rm buffer.pickley
+rm buffer.pickle
 
 for episode in {1..1000}
 do
