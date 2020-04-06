@@ -3,8 +3,8 @@ import tensorflow as tf
 import hlt
 from hlt import NORTH, EAST, SOUTH, WEST, STILL, Move, Square
 
-from dqn import DQN
-from replay_buffer import ReplayBuffer
+from dqn200 import DQN
+from replay_buffer2 import ReplayBuffer
 from hyperparameters import *
 import window
 import reward
@@ -28,14 +28,14 @@ logging.debug("sent init message to game")
 logging.debug(key)
 logging.debug(myID)
 
-r = ReplayBuffer(1000000)
+r = ReplayBuffer()
 r.load_from_file()
 
 ## INIT MODEL
 
-proto = DQN(key)
+model = DQN()
 logging.debug("initialized model")
-proto.load_last(MODEL_PATH)
+model.load_last(MODEL_PATH)
 logging.debug("loaded latest model")
 
 def termination_handler(signal, frame):
@@ -43,40 +43,46 @@ def termination_handler(signal, frame):
     logging.shutdown()
 
     r.save_to_file()
-    proto.save(MODEL_PATH)
+    model.save(MODEL_PATH)
     sys.exit(0)
 
 signal.signal(signal.SIGTERM, termination_handler)
 
 #owned_squares, current_states = window.get_windows(game_map.contents, myID)
 
+logging.debug("RLBot "  + str(myID))
 
 ## START MAIN LOOP
 while True:
-    owned_squares, current_states = window.get_windows(game_map.contents, myID)
 
-    moves = proto.get_action(current_states)
+    owned_squares = window.get_owned_squares(game_map, myID)
 
+    old_states = window.prepare_for_input(game_map, owned_squares, myID, DISTANCE)
 
-    moves = moves.numpy().tolist()
-    moves = [Move(square, move) for square, move in zip(owned_squares, moves)]
+    directions = model.get_actions(old_states)
+
+    old_targets = window.get_targets(game_map, owned_squares, directions)
+
+    moves = [Move(square, direction) for square, direction in zip(owned_squares, directions)]
 
     hlt.send_frame(moves)
     game_map.get_frame()
 
-    new_states = window.get_windows_for_squares(game_map.contents, owned_squares)
+    new_targets = window.get_targets(game_map, owned_squares, directions)
 
-    #rewards = [reward.reward(s) for s in new_states]
+    new_states = window.prepare_for_input(game_map, new_targets, myID, DISTANCE)
 
-    rewards = [reward.reward2(current_states[i], new_states[i]) for i in range(len(owned_squares))]
+    rewards = reward.reward4(owned_squares, old_targets, new_targets, myID)
 
     #logging.debug(rewards)
 
-    tuples = zip(current_states, moves, rewards, new_states)
+    for i in range(len(owned_squares)):
 
-    r.add_tuples(tuples)
+        r.add(old_states[i], directions[i], rewards[i], new_states[i])
 
     if len(r) >= BATCH_SIZE:
-        proto.train2(r.get_batch(BATCH_SIZE))
+        batch = r.get_batch(BATCH_SIZE)
+        logging.debug(batch["new_states"].shape)
+        model.train(batch)
 
-    EPSILON *= 0.99
+    #EPSILON *= 0.99

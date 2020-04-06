@@ -1,7 +1,7 @@
 import hlt
 from hlt import NORTH, EAST, SOUTH, WEST, STILL, Move, Square
 import random
-from dqn import DQN
+from dqn200 import DQN
 import sys
 from hyperparameters import *
 import window
@@ -13,16 +13,20 @@ from config import key
 
 myID, game_map = hlt.get_init()
 hlt.send_init("SelfplayBot")
-model = DQN(key)
+model = DQN()
 model.load_random(MODEL_PATH)
+
+logging.debug("SelfplayBot "  + str(myID))
 
 
 while True:
-    owned_squares, current_states = window.get_windows(game_map.contents, myID)
+    owned_squares = window.get_owned_squares(game_map, myID)
 
-    moves = model.get_action(current_states, epsilon=False)
-    moves = moves.numpy().tolist()
-    moves = [Move(square, move) for square, move in zip(owned_squares, moves)]
+    old_states = window.prepare_for_input(game_map, owned_squares, myID, DISTANCE)
+
+    directions = model.get_actions(old_states, epsilon=False)
+
+    moves = [Move(square, move) for square, move in zip(owned_squares, directions)]
 
     hlt.send_frame(moves)
     game_map.get_frame()

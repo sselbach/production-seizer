@@ -38,7 +38,7 @@ class DQN(Model):
             self.init_wide_no_conv()
 
         self.loss_function = tf.keras.losses.MeanSquaredError()
-        self.optimizer = tf.keras.optimizers.Adam()
+        self.optimizer = tf.keras.optimizers.Adam(LEARNING_RATE)
 
 
     # input x:(MAP_SIZE_x, MAP_SIZE_y, CHANNELS) map
@@ -68,7 +68,7 @@ class DQN(Model):
         greedy_actions = tf.math.argmax(rewards, axis=-1)
         for i, r in enumerate(randoms):
             if ((r < EPSILON) & epsilon):
-                actions.append(np.random.randint(0, 5))
+                actions.append(np.random.choice(a = [NORTH, EAST, SOUTH, WEST, STILL], p = [0.15, 0.15, 0.15, 0.15, 0.4]))
             else:
                 actions.append(greedy_actions[i])
 
@@ -165,6 +165,8 @@ class DQN(Model):
 
             self.optimizer.apply_gradients(zip(gradients, self.trainable_variables))
 
+
+
     def init_simple_conv(self):
         """
         Simple convolutional Network.
@@ -174,11 +176,15 @@ class DQN(Model):
         self._layers = [
             tf.keras.layers.Conv2D(
                 input_shape=(MAP_SIZE_x, MAP_SIZE_y, CHANNELS),
-                filters=FILTERS, kernel_size=KERNEL_SIZE, padding='valid', activation=tf.nn.relu
+                filters=FILTERS, kernel_size=KERNEL_SIZE, padding='same', activation=tf.nn.relu
+            ),
+            tf.keras.layers.Conv2D(
+                filters=FILTERS*2, kernel_size=KERNEL_SIZE, padding='same', activation=tf.nn.relu
             ),
 
             tf.keras.layers.Flatten(),
-            tf.keras.layers.Dense(units=10, activation=tf.nn.relu),
+            tf.keras.layers.Dense(units=128, activation=tf.nn.relu),
+            tf.keras.layers.Dense(units=64, activation=tf.nn.relu),
             tf.keras.layers.Dense(units=5)
         ]
 

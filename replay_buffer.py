@@ -2,24 +2,20 @@ import random
 import pickle
 import hlt
 from hlt import NORTH, EAST, SOUTH, WEST, STILL
+from hyperparameters import *
 
 class ReplayBuffer:
     """
     The Replay Buffer used to train the DQN
     """
 
-    def __init__(self, buffer_size):
-        self.size = buffer_size
+    def __init__(self):
+        self.size = BUFFER_SIZE
         self.buffer = []
 
-    def count(self):
-        """
-        Returns how many elements are in the Buffer
-        """
-        return len(self.buffer)
 
     def __len__(self):
-        return self.count()
+        return len(self.buffer)
 
     def save_to_file(self):
         """
@@ -36,6 +32,7 @@ class ReplayBuffer:
         try:
             with open("buffer.pickle", "rb") as file:
                 self.buffer = pickle.load(file)
+                self.size = BUFFER_SIZE
         except FileNotFoundError:
             open("buffer.pickle", "a").close()
         except EOFError:
@@ -56,14 +53,14 @@ class ReplayBuffer:
         """
         self.buffer.extend(tuple_list)
 
-        for _ in range(self.count() - self.size):
+        for _ in range(len(self) - self.size):
             self.buffer.pop(0)
 
     def get_batch(self, k):
         """
         Returns a batch of size k from the buffer
         """
-        assert self.count() >= k, "Trying to get batch although Buffer has not enough elements yet."
+        assert len(self) >= k, "Trying to get batch although Buffer has not enough elements yet."
 
         sample = random.sample(self.buffer, k=k)
 

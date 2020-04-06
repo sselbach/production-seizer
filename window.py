@@ -1,5 +1,6 @@
 import numpy as np
 import logging
+from hlt import NORTH, EAST, SOUTH, WEST, STILL
 
 def get_windows(contents, ID,  window_size = 7):
     """
@@ -20,13 +21,13 @@ def get_windows(contents, ID,  window_size = 7):
             if(square.owner == ID):
                 owned_squares.append(square)
 
-            contents_sliced[row, col, 0] = square.strength if square.owner == 1 else 0
-            contents_sliced[row, col, 1] = square.strength if square.owner == 2 else 0
+            contents_sliced[row, col, 0] = square.strength if square.owner == ID else 0
+            contents_sliced[row, col, 1] = square.strength if square.owner != 0 and square.owner != ID  else 0
             contents_sliced[row, col, 2] = square.strength if square.owner == 0 else 0
 
             # production of player 1, player 2 and neutral
-            contents_sliced[row, col, 3] = square.production if square.owner == 1 else 0
-            contents_sliced[row, col, 4] = square.production if square.owner == 2 else 0
+            contents_sliced[row, col, 3] = square.production if square.owner == ID else 0
+            contents_sliced[row, col, 4] = square.production if square.owner != 0 and square.owner != ID else 0
             contents_sliced[row, col, 5] = square.production if square.owner == 0 else 0
 
     windows = []
@@ -87,6 +88,7 @@ def convert_map_to_numpy(contents, include_owner_channel=False):
         for col in range(map_size_x):
             square = contents[row][col]
 
+
             # strength of player 1, player 2 and neutral
             window[row, col, 0] = square.strength if square.owner == 1 else 0
             window[row, col, 1] = square.strength if square.owner == 2 else 0
@@ -101,3 +103,39 @@ def convert_map_to_numpy(contents, include_owner_channel=False):
                 window[row, col, 6] = square.owner
 
     return window
+
+def get_owned_squares(game_map, id):
+    owned_squares = []
+    for row in range(30):
+        for col in range(30):
+            current = game_map.contents[row][col]
+            if(current.owner == id):
+                owned_squares.append(current)
+
+    return owned_squares
+
+def prepare_for_input(game_map, squares, id, distance = 1):
+    states = np.zeros((len(squares), 2, 2 * distance * distance + 2 * distance + 1))
+
+    for i in range(len(squares)):
+        #logging.debug(squares[i])
+        n = game_map.neighbors(squares[i], distance, True)
+        j = 0
+        for current_n in n:
+            #logging.debug(current_n)
+            states[i, 0, j] = current_n.strength if current_n.owner == id else -current_n.strength
+            states[i, 1, j] = current_n.production if current_n.owner == id else -current_n.production
+
+            j += 1
+
+    return states
+
+def get_targets(game_map, squares, actions):
+
+    targets = []
+
+    for i in range(len(squares)):
+        new_square = game_map.get_target(squares[i], actions[i])
+        targets.append(new_square)
+
+    return targets
