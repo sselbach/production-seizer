@@ -82,7 +82,7 @@ while True:
 
     if len(r) >= BATCH_SIZE:
         batch = r.get_batch(BATCH_SIZE)
-        logging.debug(batch["new_states"].shape)
+        #logging.debug(batch["new_states"].shape)
         model.train(batch)
 
     #EPSILON *= 0.99

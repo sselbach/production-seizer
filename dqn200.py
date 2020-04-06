@@ -27,9 +27,9 @@ class DQN(Model):
 
         self.strength_layer = tf.keras.layers.Dense(units=16, activation=tf.keras.activations.relu)
 
-        self.dense1 = tf.keras.layers.Dense(units=128, activation=tf.keras.activations.relu)
+        self.dense1 = tf.keras.layers.Dense(units=16, activation=tf.keras.activations.relu)
 
-        self.dense2 = tf.keras.layers.Dense(units=64, activation=tf.keras.activations.relu)
+        #self.dense2 = tf.keras.layers.Dense(units=64, activation=tf.keras.activations.relu)
 
         self.output_layer = tf.keras.layers.Dense(units=5, activation=None)
 
@@ -43,14 +43,16 @@ class DQN(Model):
 
         production = x[:,1,:]
 
-        s_o = self.strength_layer(strength)
-        p_o = self.production_layer(production)
+        #s_o = self.strength_layer(strength)
+        #p_o = self.production_layer(production)
 
-        stack = tf.concat([s_o, p_o], -1)
+        #stack = tf.concat([s_o, p_o], -1)
+
+        stack = tf.concat([strength, production], -1)
 
         o = self.dense1(stack)
 
-        o = self.dense2(o)
+        #o = self.dense2(o)
 
         o = self.output_layer(o)
 
@@ -61,11 +63,11 @@ class DQN(Model):
 
         q_values = self(states)
 
-        logging.debug(q_values)
+        #logging.debug(q_values)
 
         actions = tf.math.argmax(q_values, axis=-1).numpy()
 
-        mask = states[:, 0, STILL] == 0
+        #mask = states[:, 0, STILL] == 0
 
         #logging.debug(mask)
         #logging.debug(states[:, 0, 4])
@@ -73,13 +75,13 @@ class DQN(Model):
         if(epsilon):
             randoms = np.random.binomial(n=1, p=EPSILON, size=actions.shape)
 
-            random_actions = np.random.randint(0, 5, actions.shape)
+            #random_actions = np.random.randint(0, 5, actions.shape)
 
-            #random_actions = np.random.choice(a=[0, 1, 2, 3, 4], size=actions.shape, p=[0.05, 0.05, 0.05, 0.05, 0.8])
+            random_actions = np.random.choice(a=[0, 1, 2, 3, 4], size=actions.shape, p=[0.1, 0.1, 0.1, 0.1, 0.6])
 
             actions = actions * np.logical_not(randoms) + randoms * random_actions
 
-        actions = actions * np.logical_not(mask) + STILL * np.int_(mask)
+        #actions = actions * np.logical_not(mask) + STILL * np.int_(mask)
         #logging.debug(actions)
         #logging.debug(mask)
         return actions
@@ -141,7 +143,7 @@ class DQN(Model):
             #loss = self.loss_function(y, q_values)
             loss = tf.square(y - q_values)
 
-            #logging.debug(tf.reduce_mean(loss, axis=-1))
+            logging.debug(tf.reduce_mean(loss, axis=-1))
 
             gradients = tape.gradient(loss, self.trainable_variables)
 
