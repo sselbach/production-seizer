@@ -6,6 +6,7 @@ MAP_SIZE_y = 7
 CHANNELS = 6
 MODEL_PATH = "models/current/"
 N = 5
+WRITER_DIRECOTORY = 'experiments/test/'
 
 # Model
 FILTERS = 32

@@ -9,3 +9,5 @@ halite
 halite_mod
 models
 halite_mod
+experiments
+*.csv
