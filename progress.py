@@ -7,11 +7,19 @@ class Writer(object):
     """Create csv for keeping track of learning progress"""
 
     def __init__(self, filename, model_name):
-        self.filename = WRITER_DIRECOTORY + filename + '.csv'
+        self.filename = WRITER_DIRECTORY + filename + '.csv'
         self.model_name = model_name
-        with open(self.filename, 'w', newline='') as file:
-            self.writer = csv.writer(file)
-            self.writer.writerow(["step", "loss", "reward"])
+
+        try:
+            open(self.filename, "r")
+        except FileNotFoundError:
+            with open(self.filename, 'w', newline='') as file:
+                self.writer = csv.writer(file)
+                self.writer.writerow(["step", "loss", "reward"])
+        except EOFError:
+            return
+
+
 
 
     def save_progress(self, step, loss, reward):
@@ -22,7 +30,7 @@ class Writer(object):
     def plot_progress(self, rewards=False):
         df = pd.read_csv(self.filename)
         train_step = df["step"].to_numpy()[-1]
-        fig_name = WRITER_DIRECOTORY + self.model_name + '_' + str(train_step) + '.png'
+        fig_name = WRITER_DIRECTORY + self.model_name + '_' + str(train_step) + '.png'
         if rewards:
             df = df[["loss", "reward"]]
             df.cumsum()

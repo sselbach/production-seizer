@@ -143,11 +143,14 @@ class DQN(Model):
             #loss = self.loss_function(y, q_values)
             loss = tf.square(y - q_values)
 
-            logging.debug(tf.reduce_mean(loss, axis=-1))
+            loss_mean = tf.reduce_mean(loss, axis=-1).numpy()
+            reward_mean = np.mean(batch["rewards"], axis=-1)
 
             gradients = tape.gradient(loss, self.trainable_variables)
 
         self.optimizer.apply_gradients(zip(gradients, self.trainable_variables))
+
+        return loss_mean, reward_mean
 
     def save(self, model_dir):
         """

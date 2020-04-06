@@ -18,9 +18,13 @@ from datetime import datetime
 import config
 from config import key
 
+from progress import Writer
+
 LOG_FILENAME = 'debug.log'
 logging.basicConfig(filename=LOG_FILENAME,level=logging.DEBUG)
 logging.warning(f"starting new episode at {datetime.now().strftime('%d-%m-%Y_%I-%M-%S_%p')}")
+
+writer = Writer("data", "HelloWorld")
 
 myID, game_map = hlt.get_init()
 hlt.send_init("ProductionSeizer")
@@ -41,7 +45,7 @@ logging.debug("loaded latest model")
 def termination_handler(signal, frame):
     logging.debug(f"finished episode at {datetime.now().strftime('%d-%m-%Y_%I-%M-%S_%p')}")
     logging.shutdown()
-
+    writer.plot_progress(True)
     r.save_to_file()
     model.save(MODEL_PATH)
     sys.exit(0)
@@ -52,6 +56,7 @@ signal.signal(signal.SIGTERM, termination_handler)
 
 logging.debug("RLBot "  + str(myID))
 
+timestep = 0
 ## START MAIN LOOP
 while True:
 
@@ -83,6 +88,9 @@ while True:
     if len(r) >= BATCH_SIZE:
         batch = r.get_batch(BATCH_SIZE)
         #logging.debug(batch["new_states"].shape)
-        model.train(batch)
+        loss, rewar = model.train(batch)
 
+        writer.save_progress(timestep, loss, rewar)
+
+    timestep += 1
     #EPSILON *= 0.99
