@@ -23,19 +23,19 @@ class DQN(Model):
     def __init__(self):
         super().__init__()
 
-        self.production_layer = tf.keras.layers.Dense(units=16, activation=tf.keras.activations.relu)
+        self.production_layer = tf.keras.layers.Dense(units=4, activation=tf.keras.activations.sigmoid)
 
-        self.strength_layer = tf.keras.layers.Dense(units=16, activation=tf.keras.activations.relu)
+        self.strength_layer = tf.keras.layers.Dense(units=4, activation=tf.keras.activations.sigmoid)
 
-        self.dense1 = tf.keras.layers.Dense(units=16, activation=tf.keras.activations.relu)
+        self.dense1 = tf.keras.layers.Dense(units=8, activation=tf.keras.activations.relu)
 
-        #self.dense2 = tf.keras.layers.Dense(units=64, activation=tf.keras.activations.relu)
+        self.dense2 = tf.keras.layers.Dense(units=8, activation=tf.keras.activations.relu)
 
         self.output_layer = tf.keras.layers.Dense(units=5, activation=None)
 
         self.optimizer = tf.keras.optimizers.Adam(LEARNING_RATE)
 
-        self.loss_function = tf.keras.losses.MeanSquaredError()
+        self.loss_function = tf.keras.losses.Huber()
 
     def call(self, x):
 
@@ -43,16 +43,16 @@ class DQN(Model):
 
         production = x[:,1,:]
 
-        #s_o = self.strength_layer(strength)
-        #p_o = self.production_layer(production)
+        s_o = self.strength_layer(strength)
+        p_o = self.production_layer(production)
 
-        #stack = tf.concat([s_o, p_o], -1)
+        stack = tf.concat([s_o, p_o], -1)
 
-        stack = tf.concat([strength, production], -1)
+        #stack = tf.concat([strength, production], -1)
 
         o = self.dense1(stack)
 
-        #o = self.dense2(o)
+        o = self.dense2(o)
 
         o = self.output_layer(o)
 
@@ -141,16 +141,17 @@ class DQN(Model):
             q_values = tf.gather_nd(q_values, action_indices)
 
             #loss = self.loss_function(y, q_values)
-            loss = tf.square(y - q_values)
+            #loss = tf.square(y - q_values)
+            loss = self.loss_function(y, q_values)
 
-            loss_mean = tf.reduce_mean(loss, axis=-1).numpy()
-            reward_mean = np.mean(batch["rewards"], axis=-1)
+            #loss_mean = tf.reduce_mean(loss, axis=-1).numpy()
+            reward_mean = tf.reduce_mean(y, axis=-1).numpy()
 
             gradients = tape.gradient(loss, self.trainable_variables)
 
         self.optimizer.apply_gradients(zip(gradients, self.trainable_variables))
 
-        return loss_mean, reward_mean
+        return loss.numpy(), reward_mean
 
     def save(self, model_dir):
         """

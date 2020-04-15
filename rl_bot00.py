@@ -45,7 +45,8 @@ logging.debug("loaded latest model")
 def termination_handler(signal, frame):
     logging.debug(f"finished episode at {datetime.now().strftime('%d-%m-%Y_%I-%M-%S_%p')}")
     logging.shutdown()
-    writer.plot_progress(True)
+    #writer.save_progress(0, np.mean(np.array(losses)), np.mean(np.array(rewardl)))
+    writer.plot_progress(False)
     r.save_to_file()
     model.save(MODEL_PATH)
     sys.exit(0)
@@ -54,9 +55,14 @@ signal.signal(signal.SIGTERM, termination_handler)
 
 #owned_squares, current_states = window.get_windows(game_map.contents, myID)
 
-logging.debug("RLBot "  + str(myID))
+#logging.debug("RLBot "  + str(myID))
 
 timestep = 0
+
+#losses = []
+
+#rewardl = []
+
 ## START MAIN LOOP
 while True:
 
@@ -90,7 +96,13 @@ while True:
         #logging.debug(batch["new_states"].shape)
         loss, rewar = model.train(batch)
 
+        #losses.append(loss)
+        #rewardl.append(rewar)
+
         writer.save_progress(timestep, loss, rewar)
+
+    if(timestep % 10 == 0):
+        logging.debug(model.trainable_variables[0])
 
     timestep += 1
     #EPSILON *= 0.99

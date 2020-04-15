@@ -11,7 +11,7 @@ import config
 from config import key
 from datetime import datetime
 
-LOG_FILENAME = 'debug_sefplay.log'
+LOG_FILENAME = 'debug_selfplay.log'
 logging.basicConfig(filename=LOG_FILENAME,level=logging.DEBUG)
 logging.warning(f"starting new episode at {datetime.now().strftime('%d-%m-%Y_%I-%M-%S_%p')}")
 
@@ -28,7 +28,7 @@ while True:
 
     directions = model.get_actions(old_states, epsilon=False)
 
-    logging.debug(directions)
+    #logging.debug(directions)
 
     moves = [Move(square, move) for square, move in zip(owned_squares, directions)]
 

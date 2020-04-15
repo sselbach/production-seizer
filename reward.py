@@ -22,7 +22,7 @@ def reward4(owned_squares, old_targets, new_targets, id):
             rewards.append(-s.strength)
 
         elif(o.owner == 0 and n.owner == id):
-            rewards.append(n.production)
+            rewards.append(n.production + s.strength)
 
         elif(s.x == n.x and s.y == n.y):
             rewards.append(1)
