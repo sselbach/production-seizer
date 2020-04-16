@@ -1,3 +1,4 @@
+
 # Solving the Halite Challenge with a Deep-Q network
 
 
@@ -10,3 +11,27 @@ For our final project in the course of “Implementing ANN with TensorFlow” we
 Halite is played on a rectangular grid, where the size correlates with the number of players (2-6). The goal is to seize the means of production. Each player starts on a specific tile of the grid, all other tiles are considered unowned. The tiles come in different qualities. A tile produces or enhances one drone per turn with the strength of its quality value. Drones have the ability to move in cityblock distance or to stay at their momentary tile. An unowned tile can be converted into an owned one by being occupied by a drone. The strength of the drones is capped to the value of 255. Tiles owned by foreign drones can be conquered by overwhelming through higher strength. The strength values get subtracted. When all enemy drones and tiles are conquered, the game ends. The map is continuous, go to far left and you will appear on the right (bottom and top the same).
 
 ![](halite_gif.gif)
+
+## Our Goal
+
+The Goal of our final project was to train a Reinforcement Learning Deep Q Network to play this game in a sufficient efficient way.
+
+### Whats a Deep-Q network (DQN)?
+
+A DQN is a reinforcment learning(RL) based convolutional neural network(CNN). RL is about training an agent to interact with its environment to achieve a certain goal. To achieve said goals the agent has to decide on an action $$a$$ which then leads to certain states $$s$$. These actions can impact the reward in a positive or negative way. The agent's purpose is, to maximize the reward in each episode. An episode is anything between the first state and the terminal state. We reinforce the agent to learn to perform the most rewarding action by experience. How rewarding an action can be is not obvious in most scenarios. Therefore a Markov decision process is initiated to save every action to each state. To allocate a reward $$Q$$ to a state we use the Q-function: $$Q(s,a)= r(s,a) + \gamma  max  Q(s',a)$$ 
+Gamma here is the discount factor which controls the contribution of rewards further in the future. Wheras $$s'$$ is the future state.
+
+* Preprocess and feed the game screen (state s) to our DQN, which will return the Q-values of all possible actions in the state
+* Select an action using the epsilon-greedy policy. With the probability epsilon, we select a random action a and with probability 1-epsilon, we select an action that has a maximum Q-value, such as $$a = argmax(Q(s,a,w))$$
+* Perform this action in a state s and move to a new state s’ to receive a reward. This state s’ is the preprocessed image of the next game screen. We store this transition in our replay buffer as <s,a,r,s’>
+* Next, sample some random batches of transitions from the replay buffer and calculate the loss
+* The Loss is just the squared difference between target Q and predicted Q (mean-squared-error)
+* Perform gradient descent with respect to our actual network parameters in order to minimize this loss
+* After every C iterations, copy our actual network weights to the target network weights
+* Repeat these steps for M number of episodes
+
+
+
+## Our Approach
+
+### Groundwork
