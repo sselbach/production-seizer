@@ -38,5 +38,23 @@ replay_buffer.py| Saving trajectories for training the DQN with experience repla
 dqn.py| Contains the definition of the network architecture of our DQN and the training procedure. It also handles loading and saving of models.
 hyperparameters.py| Specifies all the hyperparameters used, general ones as well as ones specific for training eg. model saving directory and learning rate.
 
+### Training procedure outline:
+
+* **Outer loop: episodes**
+1. Loading the most current model (loading all trainable parameters) in the model saving directory. If this directory is empty, initialize random parameters by making a forward pass with random input.
+2. Start the game and interact with the game environment
+    * **Inner loop: steps**
+   1. Get all the windows for squares owned (old state)
+   2. Pass windows through the DQN to get an action for each owned square or choose a random action with the probability of Epsilon
+   3. Sent moves to game environment
+   4. Get the now states from the game environment
+   5. Compute the rewards
+   6. Save trajectory to replay buffer
+		 * **Training loop:**
+		 1. Sample a batch from the replay buffer
+		 2. Perform gradient descent on that batch 
+		 3. Store the loss and the reward
+3. If a game ends, save the current model in the specified directory and produce a plot monitoring the training process in that episode
+
 ### Groundwork
 |
