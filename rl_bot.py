@@ -60,7 +60,7 @@ def termination_handler(signal, frame):
 
     tm.save()
 
-    writer.plot_progress(True)
+    writer.plot_progress()
     r.save()
     model.save(MODEL_PATH)
     sys.exit(0)
