@@ -1,8 +1,6 @@
-import random
+import numpy as np
 import pickle
-import hlt
-from hlt import NORTH, EAST, SOUTH, WEST, STILL
-from hyperparameters import *
+from hyperparameters import BUFFER_SIZE
 
 class ReplayBuffer:
     """
@@ -10,58 +8,69 @@ class ReplayBuffer:
     """
 
     def __init__(self):
-        self.size = BUFFER_SIZE
-        self.buffer = []
+        try:
+            with open("buffer.pickle", "rb") as file:
+                self.buffer = pickle.load(file)
+                self.count = len(self.buffer["new_states"])
+        except FileNotFoundError:
+            open("buffer.pickle", "a").close()
+            self.count = 0
+            self.buffer = {
+            "new_states": [],
+            "rewards": [],
+            "actions": [],
+            "old_states" : [],
+            "done": []
+            }
+        except EOFError:
+            return
 
 
     def __len__(self):
-        return len(self.buffer)
+        return self.count
 
-    def save_to_file(self):
+    def save(self):
         """
         Saves the buffer to a file
         """
         with open("buffer.pickle", "wb") as file:
             pickle.dump(self.buffer, file)
 
-    def load_from_file(self):
-        """
-        Loads the buffer from a file.
-        If file doesn't exist creates it.
-        """
-        try:
-            with open("buffer.pickle", "rb") as file:
-                self.buffer = pickle.load(file)
-                self.size = BUFFER_SIZE
-        except FileNotFoundError:
-            open("buffer.pickle", "a").close()
-        except EOFError:
-            return
-
-    def add_tuple(self, old_state, action, reward, new_state, terminal):
+    def add(self, old_state, action, reward, new_state, done):
         """
         Adds a SARS tuple to the buffer
         """
-        self.buffer.append((old_state, action, reward, new_state, terminal))
+        self.buffer["old_states"].append(old_state)
+        self.buffer["new_states"].append(new_state)
+        self.buffer["actions"].append(action)
+        self.buffer["rewards"].append(reward)
+        self.buffer["done"].append(done)
 
-        if(self.count() > self.size):
-            self.buffer.pop(0)
+        if(self.count == BUFFER_SIZE):
+            self.buffer["old_states"].pop(0)
+            self.buffer["new_states"].pop(0)
+            self.buffer["actions"].pop(0)
+            self.buffer["rewards"].pop(0)
+            self.buffer["done"].pop(0)
 
-    def add_tuples(self, tuple_list):
-        """
-        Adds multiple tuples to the buffer
-        """
-        self.buffer.extend(tuple_list)
+        else:
+            self.count += 1
 
-        for _ in range(len(self) - self.size):
-            self.buffer.pop(0)
 
     def get_batch(self, k):
         """
         Returns a batch of size k from the buffer
         """
-        assert len(self) >= k, "Trying to get batch although Buffer has not enough elements yet."
+        assert self.count >= k, "Trying to get batch although Buffer has not enough elements yet."
 
-        sample = random.sample(self.buffer, k=k)
+        sample = np.random.choice(self.count, k, replace=False)
 
-        return sample
+        batch = {
+        "new_states": np.array(self.buffer["new_states"])[sample],
+        "rewards": np.array(self.buffer["rewards"])[sample],
+        "actions": np.array(self.buffer["actions"])[sample],
+        "old_states" : np.array(self.buffer["old_states"])[sample],
+        "done" : np.array(self.buffer["done"])[sample]
+        }
+
+        return batch

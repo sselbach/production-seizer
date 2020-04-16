@@ -1,9 +1,9 @@
 import hlt
 from hlt import NORTH, EAST, SOUTH, WEST, STILL, Move, Square
 import random
-from dqn200 import DQN
+from dqn import DQN
 import sys
-from hyperparameters import *
+from hyperparameters import MODEL_PATH
 import window
 import tensorflow as tf
 import logging
@@ -18,15 +18,20 @@ logging.warning(f"starting new episode at {datetime.now().strftime('%d-%m-%Y_%I-
 
 myID, game_map = hlt.get_init()
 hlt.send_init("SelfplayBot")
+
 model = DQN()
 model.load_last(MODEL_PATH)
+
+logging.debug(model)
+
+game_map.get_frame()
 
 while True:
     owned_squares = window.get_owned_squares(game_map, myID)
 
-    old_states = window.prepare_for_input(game_map, owned_squares, myID, DISTANCE)
+    old_states = window.prepare_for_input(game_map, owned_squares, myID)
 
-    directions = model.get_actions(old_states, epsilon=False)
+    directions = model.get_actions(old_states, 0)
 
     #logging.debug(directions)
 

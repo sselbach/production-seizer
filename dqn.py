@@ -9,7 +9,7 @@ from tensorflow.keras import  Model
 
 import numpy as np
 
-from hyperparameters import *
+from hyperparameters import LEARNING_RATE, NEIGHBORS, DISTANCE, GAMMA
 from hlt import NORTH, EAST, SOUTH, WEST, STILL, Move, Square
 
 import random
@@ -18,88 +18,70 @@ import glob
 import logging
 from datetime import datetime
 
-
 class DQN(Model):
-    def __init__(self, key):
+    """
+    Implementation of DQN with a simple Neural Network
+    """
 
-        """
-        Initialize Model according to provided key word
-        """
+    def __init__(self):
         super().__init__()
-        if (key == "simple_conv"):
-            self.init_simple_conv()
-        elif (key == "simple_no_conv"):
-            self.init_simple_no_conv()
-        elif (key == "res_net"):
-            self.init_res_net()
-        elif (key == "wide_conv"):
-            self.init_wide_conv()
-        elif (key == "wide_no_conv"):
-            self.init_wide_no_conv()
 
-        self.loss_function = tf.keras.losses.MeanSquaredError()
+        self.production_layer = tf.keras.layers.Dense(units=2, activation=tf.keras.activations.relu)
+
+        self.strength_layer = tf.keras.layers.Dense(units=2, activation=tf.keras.activations.relu)
+
+        self.dense1 = tf.keras.layers.Dense(units=4, activation=tf.keras.activations.relu)
+
+        self.dense2 = tf.keras.layers.Dense(units=4, activation=tf.keras.activations.relu)
+
+        self.output_layer = tf.keras.layers.Dense(units=5, activation=None)
+
         self.optimizer = tf.keras.optimizers.Adam(LEARNING_RATE)
 
+        self.loss_function = tf.keras.losses.Huber()
 
-    # input x:(MAP_SIZE_x, MAP_SIZE_y, CHANNELS) map
-    # output: (5,1) rewards
+
     def call(self, x):
+
+        strength = x[:,0,:]
+
+        production = x[:,1,:]
+
+        s_o = self.strength_layer(strength)
+        p_o = self.production_layer(production)
+
+        stack = tf.concat([s_o, p_o], -1)
+
+        o = self.dense1(stack)
+
+        o = self.dense2(o)
+
+        o = self.output_layer(o)
+
+        return o
+
+
+    def get_actions(self, states, epsilon=0):
         """
-        Forward pass.
+        Returns valid actions for all states, using an epsilon-greedy approach
         """
-        for layer in self._layers:
-            x = layer(x)
 
-        return x
+        # Get q-values for states
+        q_values = self(states)
 
-    def get_action(self, x, epsilon=True):
-        """
-        Do a forward pass and return tensor of chosen actions.
-        Choose either a random action or follow the policy.
-        """
-        # shape : (batch_size, 5)
-        rewards = self.call(x)
+        # Get the action that has the highest q-value
+        actions = tf.math.argmax(q_values, axis=-1).numpy()
 
-        # pick position of actions (number between 0 and 4)
-        # don't make one random decision for the entire batch, instead decide on individual basis
-        randoms = np.random.uniform(0, 1, size=x.shape[0])
+        # Generate which actions should be randomized using epsilon
+        randoms = np.random.binomial(n=1, p=epsilon, size=actions.shape)
 
-        actions = []
-        greedy_actions = tf.math.argmax(rewards, axis=-1)
-        for i, r in enumerate(randoms):
-            if ((r < EPSILON) & epsilon):
-                actions.append(np.random.choice(a = [NORTH, EAST, SOUTH, WEST, STILL], p = [0.15, 0.15, 0.15, 0.15, 0.4]))
-            else:
-                actions.append(greedy_actions[i])
+        # Get random actions
+        random_actions = np.random.choice(a=[0, 1, 2, 3, 4], size=actions.shape, p=[0.1, 0.1, 0.1, 0.1, 0.6])
 
-        return tf.convert_to_tensor(actions)
+        # Make actions random for states that should be randomized
+        actions = actions * np.logical_not(randoms) + randoms * random_actions
 
-    def save(self, model_dir):
-        """
-        Save weights of current configuration.
-        """
-        self.save_weights(model_dir + datetime.now().strftime("%d-%m-%Y_%I-%M-%S_%p"))
-
-    def load_last(self, model_dir):
-        """
-        Loads the latest model.
-        """
-        list_of_files = glob.glob(model_dir+'*') # * means all if need specific format then *.csv
-
-        if len(list_of_files) <=  1:
-            input_map = tf.random.normal(shape=(BATCH_SIZE,MAP_SIZE_x,MAP_SIZE_y,CHANNELS))
-            self.get_action(input_map)
-            self.save_weights(model_dir + 'random_initialization')
-
-        list_of_files = sorted(os.listdir(model_dir), key=lambda f: os.path.getmtime(model_dir + f))
-        latest_file = list_of_files[-1]
-        latest_file = latest_file.rsplit('.', 1)[0]
-
-        if latest_file == 'checkpoint':
-            latest_file = list_of_files[-2]
-            latest_file = latest_file.rsplit('.', 1)[0]
-
-        self.load_weights(model_dir + latest_file)
+        return actions
 
     def load_random(self, model_dir):
         """
@@ -109,8 +91,8 @@ class DQN(Model):
 
         # if model directory is empty make a dummy forward pass
         if len(list_of_files) <=  1:
-            input_map = tf.random.normal(shape=(BATCH_SIZE,MAP_SIZE_x,MAP_SIZE_y,CHANNELS))
-            self.get_action(input_map)
+            input_map = tf.random.normal(shape=(1,2,NEIGHBORS))
+            self.get_actions(input_map)
             self.save_weights(model_dir + 'random_initialization')
 
         # if less then N models. just choose on randomly
@@ -138,147 +120,67 @@ class DQN(Model):
 
     def train(self, batch):
         """
-        Simple Deep Q implementation.
+        Trains the model on one batch
         """
-        # n times (old state, action, reward, new_state)
-        # bacth = list of last n tuples from replay ReplayBuffer
-        # get old states
-        old_states, actions, rewards, new_states = zip(*batch)
-        # pass through models to get q value
-        moves = [action.direction for action in actions]
 
         with tf.GradientTape() as tape:
-            q_values_old = self.call(tf.convert_to_tensor(list(old_states)))
-            q_target = q_values_old.numpy()
-            # get new states
-            # pass new_states through models -> (batch_size, 5)
-            q_values_new = self.call(tf.convert_to_tensor(list(new_states))).numpy()
-            # pick maximum -> (batch_size)
-            max_q = np.max(q_values_new, axis=-1)
-            # compute y vector (batch_size)
-            for i, action in enumerate(moves):
-                q_target[i, action] = rewards[i] + GAMMA * max_q[i]
 
-            loss = self.loss_function(q_values_old, q_target)
+            # Get q-values for new states
+            output = self(batch["new_states"])
 
+            # Get max q-values
+            max = tf.reduce_max(output, axis = 1)
+
+            # Calculate returns based on immediate reward + discounted future reward
+            y = batch["rewards"] + GAMMA * tf.multiply(batch["done"], max)
+
+            # Get q-values for old states
+            q_values = self(batch["old_states"])
+
+            # Get indices for gather function
+            action_indices = np.append(np.arange(batch["actions"].shape[0]).reshape(-1,1), batch["actions"].reshape(-1, 1), axis = 1)
+
+            # Get q-values corresponding to action taken
+            q_values = tf.gather_nd(q_values, action_indices)
+
+            # Calculate loss
+            loss = self.loss_function(y, q_values)
+
+            # Get means for rewards for later plotting
+            #loss_mean = tf.reduce_mean(loss, axis=-1).numpy()
+            reward_mean = tf.reduce_mean(y, axis=-1).numpy()
+
+            # Calculate gradients
             gradients = tape.gradient(loss, self.trainable_variables)
 
-            self.optimizer.apply_gradients(zip(gradients, self.trainable_variables))
+        # Train model
+        self.optimizer.apply_gradients(zip(gradients, self.trainable_variables))
 
+        return loss.numpy(), reward_mean
 
-
-    def init_simple_conv(self):
+    def save(self, model_dir):
         """
-        Simple convolutional Network.
-        Conv2D: 1
-        Dense: 2
+        Save weights of current configuration.
         """
-        self._layers = [
-            tf.keras.layers.Conv2D(
-                input_shape=(MAP_SIZE_x, MAP_SIZE_y, CHANNELS),
-                filters=FILTERS, kernel_size=KERNEL_SIZE, padding='same', activation=tf.nn.relu
-            ),
-            tf.keras.layers.Conv2D(
-                filters=FILTERS*2, kernel_size=KERNEL_SIZE, padding='same', activation=tf.nn.relu
-            ),
+        self.save_weights(model_dir + datetime.now().strftime("%d-%m-%Y_%I-%M-%S_%p"))
 
-            tf.keras.layers.Flatten(),
-            tf.keras.layers.Dense(units=128, activation=tf.nn.relu),
-            tf.keras.layers.Dense(units=64, activation=tf.nn.relu),
-            tf.keras.layers.Dense(units=5)
-        ]
-
-    def init_wide_conv(self):
+    def load_last(self, model_dir):
         """
-        Wide convolutional Network, guided by AlexNet.
-        Conv2D: 1
-        Max Pooling
-        Conv2D: 1
-        Max Pooling
-        Conv2D: 3
-        Flatten
-        Dense: 3 (2 relu, one softmax)
+        Loads the latest model.
         """
-        self._layers = [
-        tf.keras.layers.Conv2D(input_shape=(MAP_SIZE_x, MAP_SIZE_y, CHANNELS),
-        filters=64, kernel_size=KERNEL_SIZE, padding='same', activation=tf.nn.relu),
-        tf.keras.layers.MaxPooling2D(pool_size=(3,3), strides=2),
-        tf.keras.layers.Conv2D(filters=192, kernel_size=KERNEL_SIZE, padding='same', activation=tf.nn.relu),
-        tf.keras.layers.MaxPooling2D(pool_size=(3,3), strides=2),
-        tf.keras.layers.Conv2D(filters=384, kernel_size=(3,3), padding='same', activation=tf.nn.relu),
-        tf.keras.layers.Conv2D(filters=384, kernel_size=(3,3), padding='same', activation=tf.nn.relu),
-        tf.keras.layers.Conv2D(filters=192, kernel_size=(3,3), padding='same', activation=tf.nn.relu),
-        tf.keras.layers.Flatten(),
-        tf.keras.layers.Dense(units=256, activation=tf.nn.relu),
-        tf.keras.layers.Dense(units=10, activation=tf.nn.relu),
-        tf.keras.layers.Dense(units=5)
-        ]
+        list_of_files = glob.glob(model_dir+'*') # * means all if need specific format then *.csv
 
-    def init_simple_no_conv(self):
-        """
-        Simple Neural Network.
-        Dense: 2
-        """
-        self._layers = [
-            tf.keras.layers.Flatten(),
-            tf.keras.layers.Dense(units=10, activation=tf.nn.relu),
-            tf.keras.layers.Dense(units=5)
-        ]
+        if len(list_of_files) <=  1:
+            input_map = tf.random.normal(shape=(1, 2, NEIGHBORS))
+            self.get_actions(input_map)
+            self.save_weights(model_dir + 'random_initialization')
 
-    def init_wide_no_conv(self):
-        """
-        Wide ANN.
-        """
-        self._layers = [
-            tf.keras.layers.Flatten(),
-            tf.keras.layers.Dense(units=256, activation=tf.nn.relu),
-            tf.keras.layers.Dense(units=256, activation=tf.nn.relu),
-            tf.keras.layers.Dense(units=64, activation=tf.nn.relu),
-            tf.keras.layers.Dense(units=10, activation=tf.nn.relu),
-            tf.keras.layers.Dense(units=5)
-            ]
+        list_of_files = sorted(os.listdir(model_dir), key=lambda f: os.path.getmtime(model_dir + f))
+        latest_file = list_of_files[-1]
+        latest_file = latest_file.rsplit('.', 1)[0]
 
-    def init_res_net(self):
-        """
-        Res Net: convolutional neural network with skip connections.
-        Conv2D:2
-        Res Net Blocks...
-        Conv2D: 1
-        Average Pooling
-        Dense: 1
-        Dropout
-        Dense: 2
-        """
-        self._layers = [
-        tf.keras.layers.Conv2D(input_shape=(MAP_SIZE_x, MAP_SIZE_y, CHANNELS), kernel_size=KERNEL_SIZE, filters=32, activation='relu'),
-        tf.keras.layers.Conv2D(kernel_size=KERNEL_SIZE, filters=FILTERS, activation='relu')
-        ]
+        if latest_file == 'checkpoint':
+            latest_file = list_of_files[-2]
+            latest_file = latest_file.rsplit('.', 1)[0]
 
-        for i in range(NUMBER_RES_BLOCKS):
-            self._layers.append(DenseBlock(FILTERS, KERNEL_SIZE))
-
-        self._layers.append(tf.keras.layers.Conv2D(filters=FILTERS,kernel_size=KERNEL_SIZE, activation='relu'))
-        self._layers.append(tf.keras.layers.GlobalAveragePooling2D())
-        self._layers.append(tf.keras.layers.Dense(256, activation='relu'))
-        self._layers.append(tf.keras.layers.Dropout(0.5))
-        self._layers.append(tf.keras.layers.Dense(units=10, activation=tf.nn.relu)),
-        self._layers.append(tf.keras.layers.Dense(units=5))
-
-class  DenseBlock(Layer):
-    """
-    Res Net Blocks.
-    Raw input added to output of 2 convolutional layers wiht Batch Noramlization.
-    """
-    def __init__(self, filters, conv_size):
-        super(DenseBlock, self).__init__()
-        self.conv1 = tf.keras.layers.Conv2D(filters, conv_size, activation='relu', padding='same')
-        self.conv2 = tf.keras.layers.Conv2D(filters, conv_size, activation=None, padding='same')
-
-    def call(self, x_in):
-        x = self.conv1(x_in)
-        x = tf.keras.layers.BatchNormalization()(x)
-        x = self.conv2(x)
-        x = tf.keras.layers.BatchNormalization()(x)
-        x = tf.keras.layers.Add()([x, x_in])
-        x = tf.keras.layers.Activation('relu')(x)
-        return x
+        self.load_weights(model_dir + latest_file)

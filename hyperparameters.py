@@ -1,26 +1,18 @@
-
+"""
+The hyperparameters used by all different parts of our algorithms
+"""
 
 # General
-MAP_SIZE_x = 7
-MAP_SIZE_y = 7
-CHANNELS = 6
 MODEL_PATH = "models/current/"
-N = 5
 WRITER_DIRECTORY = 'experiments/test/'
 
 # Model
-FILTERS = 32
-KERNEL_SIZE = (3, 3)
-EPSILON = 0.2
-GAMMA = 0.9999
-BATCH_SIZE = 128
-NUMBER_RES_BLOCKS = 10
-LEARNING_RATE = 1
+EPSILON_START = 0.8
+EPSILON_DECAY = 0.98
+EPSILON_END = 0.1
+GAMMA = 0.99
+BATCH_SIZE = 256
+LEARNING_RATE = 0.001
 BUFFER_SIZE = 100000
-DISTANCE = 1
+DISTANCE = 3
 NEIGHBORS = 2 * DISTANCE * DISTANCE + 2 * DISTANCE + 1
-
-
-# Reward Function
-USE_GLOBAL_REWARD = False
-PRODUCTION_TRADEOFF = 10
