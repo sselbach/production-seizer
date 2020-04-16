@@ -19,16 +19,7 @@ The Goal of our final project was to train a Reinforcement Learning Deep Q Netwo
 ### Whats a Deep-Q network (DQN)?
 
 A DQN is a reinforcment learning(RL) based convolutional neural network(CNN). RL is about training an agent to interact with its environment to achieve a certain goal. To achieve said goals the agent has to decide on an action $$a$$ which then leads to certain states $$s$$. These actions can impact the reward in a positive or negative way. The agent's purpose is, to maximize the reward in each episode. An episode is anything between the first state and the terminal state. We reinforce the agent to learn to perform the most rewarding action by experience. How rewarding an action can be is not obvious in most scenarios. Therefore a Markov decision process is initiated to save every action to each state. To allocate a reward $$Q$$ to a state we use the Q-function: $$Q(s,a)= r(s,a) + \gamma  max  Q(s',a)$$ 
-Gamma here is the discount factor which controls the contribution of rewards further in the future. Wheras $$s'$$ is the future state.
-
-* Preprocess and feed the game screen (state s) to our DQN, which will return the Q-values of all possible actions in the state
-* Select an action using the epsilon-greedy policy. With the probability epsilon, we select a random action a and with probability 1-epsilon, we select an action that has a maximum Q-value, such as $$a = argmax(Q(s,a,w))$$
-* Perform this action in a state s and move to a new state s’ to receive a reward. This state s’ is the preprocessed image of the next game screen. We store this transition in our replay buffer as <s,a,r,s’>
-* Next, sample some random batches of transitions from the replay buffer and calculate the loss
-* The Loss is just the squared difference between target Q and predicted Q (mean-squared-error)
-* Perform gradient descent with respect to our actual network parameters in order to minimize this loss
-* After every C iterations, copy our actual network weights to the target network weights
-* Repeat these steps for M number of episodes
+Gamma here is the discount factor which controls the contribution of rewards further in the future. Wheras $$s'$$ is the future state. We select an action using the epsilon-greedy policy. With the probability epsilon, we select a random action a and with probability 1-epsilon, we select an action that has a maximum Q-value, such as $$a = argmax(Q(s,a,w))$$. We perform this action and move to the next state $$s'$$, while also storing this choice in our replay buffer as $$(s,a,r,s')$$. In deep Q-learning, we use a neural network to approximate the Q-value function. The state is given as the input and the Q-value of all possible actions is generated as the output. The Loss is just the squared difference between target Q and predicted Q (mean-squared-error). Perform gradient descent with respect to our actual network parameters in order to minimize this loss. After every T iterations, copy our actual network weights to the target network weights. Repeat these steps for M number of episodes.
 
 
 
