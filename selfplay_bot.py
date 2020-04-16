@@ -24,12 +24,14 @@ model.load_last(MODEL_PATH)
 
 logging.debug(model)
 
+game_map.get_frame()
+
 while True:
     owned_squares = window.get_owned_squares(game_map, myID)
 
     old_states = window.prepare_for_input(game_map, owned_squares, myID)
 
-    directions = model.get_actions(old_states, 0.1)
+    directions = model.get_actions(old_states, 0)
 
     #logging.debug(directions)
 

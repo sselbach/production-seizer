@@ -19,17 +19,20 @@ import logging
 from datetime import datetime
 
 class DQN(Model):
+    """
+    Implementation of DQN with a simple Neural Network
+    """
 
     def __init__(self):
         super().__init__()
 
-        self.production_layer = tf.keras.layers.Dense(units=4, activation=tf.keras.activations.sigmoid)
+        self.production_layer = tf.keras.layers.Dense(units=2, activation=tf.keras.activations.relu)
 
-        self.strength_layer = tf.keras.layers.Dense(units=4, activation=tf.keras.activations.sigmoid)
+        self.strength_layer = tf.keras.layers.Dense(units=2, activation=tf.keras.activations.relu)
 
-        self.dense1 = tf.keras.layers.Dense(units=8, activation=tf.keras.activations.relu)
+        self.dense1 = tf.keras.layers.Dense(units=4, activation=tf.keras.activations.relu)
 
-        self.dense2 = tf.keras.layers.Dense(units=8, activation=tf.keras.activations.relu)
+        self.dense2 = tf.keras.layers.Dense(units=4, activation=tf.keras.activations.relu)
 
         self.output_layer = tf.keras.layers.Dense(units=5, activation=None)
 
@@ -49,8 +52,6 @@ class DQN(Model):
 
         stack = tf.concat([s_o, p_o], -1)
 
-        #stack = tf.concat([strength, production], -1)
-
         o = self.dense1(stack)
 
         o = self.dense2(o)
@@ -61,29 +62,25 @@ class DQN(Model):
 
 
     def get_actions(self, states, epsilon=0):
+        """
+        Returns valid actions for all states, using an epsilon-greedy approach
+        """
 
+        # Get q-values for states
         q_values = self(states)
 
-        #logging.debug(q_values)
-
+        # Get the action that has the highest q-value
         actions = tf.math.argmax(q_values, axis=-1).numpy()
 
-        #mask = states[:, 0, STILL] == 0
-
-        #logging.debug(mask)
-        #logging.debug(states[:, 0, 4])
-
+        # Generate which actions should be randomized using epsilon
         randoms = np.random.binomial(n=1, p=epsilon, size=actions.shape)
-        logging.debug(epsilon)
-            #random_actions = np.random.randint(0, 5, actions.shape)
 
+        # Get random actions
         random_actions = np.random.choice(a=[0, 1, 2, 3, 4], size=actions.shape, p=[0.1, 0.1, 0.1, 0.1, 0.6])
 
+        # Make actions random for states that should be randomized
         actions = actions * np.logical_not(randoms) + randoms * random_actions
 
-        #actions = actions * np.logical_not(mask) + STILL * np.int_(mask)
-        #logging.debug(actions)
-        #logging.debug(mask)
         return actions
 
     def load_random(self, model_dir):
@@ -122,33 +119,41 @@ class DQN(Model):
 
 
     def train(self, batch):
-        #old_states, actions, rewards, new_states = zip(*batch)
-
-        #moves = np.array([action.direction for action in actions])
-
-        #actions = np.array(actions)
+        """
+        Trains the model on one batch
+        """
 
         with tf.GradientTape() as tape:
 
-            output = self.call(batch["new_states"])
+            # Get q-values for new states
+            output = self(batch["new_states"])
 
-            y = batch["rewards"] + GAMMA * tf.reduce_max(output, axis = 1)
+            # Get max q-values
+            max = tf.reduce_max(output, axis = 1)
 
-            q_values = self.call(batch["old_states"])
+            # Calculate returns based on immediate reward + discounted future reward
+            y = batch["rewards"] + GAMMA * tf.multiply(batch["done"], max)
 
+            # Get q-values for old states
+            q_values = self(batch["old_states"])
+
+            # Get indices for gather function
             action_indices = np.append(np.arange(batch["actions"].shape[0]).reshape(-1,1), batch["actions"].reshape(-1, 1), axis = 1)
 
+            # Get q-values corresponding to action taken
             q_values = tf.gather_nd(q_values, action_indices)
 
-            #loss = self.loss_function(y, q_values)
-            #loss = tf.square(y - q_values)
+            # Calculate loss
             loss = self.loss_function(y, q_values)
 
+            # Get means for rewards for later plotting
             #loss_mean = tf.reduce_mean(loss, axis=-1).numpy()
             reward_mean = tf.reduce_mean(y, axis=-1).numpy()
 
+            # Calculate gradients
             gradients = tape.gradient(loss, self.trainable_variables)
 
+        # Train model
         self.optimizer.apply_gradients(zip(gradients, self.trainable_variables))
 
         return loss.numpy(), reward_mean

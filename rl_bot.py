@@ -44,9 +44,15 @@ logging.debug("initialized model")
 model.load_last(MODEL_PATH)
 logging.debug("loaded latest model")
 
+
+l_list = []
+r_list = []
+
 def termination_handler(signal, frame):
     logging.debug(f"finished episode at {datetime.now().strftime('%d-%m-%Y_%I-%M-%S_%p')}")
     logging.shutdown()
+
+    tm.content["episodes"] += 1
 
     if(tm.content["epsilon"] > EPSILON_END):
 
@@ -54,12 +60,14 @@ def termination_handler(signal, frame):
 
     tm.save()
 
-    writer.plot_progress(False)
+    writer.plot_progress(True)
     r.save()
     model.save(MODEL_PATH)
     sys.exit(0)
 
 signal.signal(signal.SIGTERM, termination_handler)
+
+game_map.get_frame()
 
 
 ## START MAIN LOOP
@@ -80,6 +88,8 @@ while True:
 
     new_targets = window.get_targets(game_map, owned_squares, directions)
 
+    done = [int(t.owner == id) for t in new_targets]
+
     new_states = window.prepare_for_input(game_map, new_targets, myID)
 
     rewards = reward.reward(owned_squares, old_targets, new_targets, myID)
@@ -88,7 +98,7 @@ while True:
 
     for i in range(len(owned_squares)):
 
-        r.add(old_states[i], directions[i], rewards[i], new_states[i])
+        r.add(old_states[i], directions[i], rewards[i], new_states[i], done[i])
 
     if len(r) >= BATCH_SIZE:
         batch = r.get_batch(BATCH_SIZE)

@@ -12,9 +12,10 @@ def reward(owned_squares, old_targets, new_targets, id):
             rewards.append(-s.strength)
 
         elif(o.owner == 0 and n.owner == id):
-            rewards.append(n.production + s.strength)
+            rewards.append((n.production + s.strength) * 10)
 
         else:
-            rewards.append(1)
+            rewards.append(-0.001)
+
 
     return rewards

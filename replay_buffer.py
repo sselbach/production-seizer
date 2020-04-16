@@ -19,7 +19,8 @@ class ReplayBuffer:
             "new_states": [],
             "rewards": [],
             "actions": [],
-            "old_states" : []
+            "old_states" : [],
+            "done": []
             }
         except EOFError:
             return
@@ -35,7 +36,7 @@ class ReplayBuffer:
         with open("buffer.pickle", "wb") as file:
             pickle.dump(self.buffer, file)
 
-    def add(self, old_state, action, reward, new_state):
+    def add(self, old_state, action, reward, new_state, done):
         """
         Adds a SARS tuple to the buffer
         """
@@ -43,12 +44,14 @@ class ReplayBuffer:
         self.buffer["new_states"].append(new_state)
         self.buffer["actions"].append(action)
         self.buffer["rewards"].append(reward)
+        self.buffer["done"].append(done)
 
         if(self.count == BUFFER_SIZE):
             self.buffer["old_states"].pop(0)
             self.buffer["new_states"].pop(0)
             self.buffer["actions"].pop(0)
             self.buffer["rewards"].pop(0)
+            self.buffer["done"].pop(0)
 
         else:
             self.count += 1
@@ -66,7 +69,8 @@ class ReplayBuffer:
         "new_states": np.array(self.buffer["new_states"])[sample],
         "rewards": np.array(self.buffer["rewards"])[sample],
         "actions": np.array(self.buffer["actions"])[sample],
-        "old_states" : np.array(self.buffer["old_states"])[sample]
+        "old_states" : np.array(self.buffer["old_states"])[sample],
+        "done" : np.array(self.buffer["done"])[sample]
         }
 
         return batch

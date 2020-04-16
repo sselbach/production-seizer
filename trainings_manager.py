@@ -11,7 +11,8 @@ class TrainingsManager:
             open("buffer.pickle", "a").close()
             self.content = {
             "epsilon" : EPSILON_START,
-            "timesteps" : 0
+            "timesteps" : 0,
+            "episodes" : 0
             }
         except EOFError:
             return
