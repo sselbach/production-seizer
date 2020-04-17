@@ -31,7 +31,7 @@ while True:
 
     old_states = window.prepare_for_input(game_map, owned_squares, myID)
 
-    directions = model.get_actions(old_states, 0)
+    directions = model.get_actions(old_states, 0.1)
 
     #logging.debug(directions)
 

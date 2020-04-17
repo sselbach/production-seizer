@@ -5,7 +5,7 @@ from hlt import Move, Square
 
 from hyperparameters import BATCH_SIZE, MODEL_PATH, EPSILON_END, EPSILON_DECAY
 import window
-import reward
+import reward as reward_functions
 
 import sys
 import logging
@@ -19,7 +19,7 @@ from config import key
 from progress import Writer
 from trainings_manager import TrainingsManager
 from replay_buffer import ReplayBuffer
-from dqn import DQN
+from dqn_conv import DQN
 
 LOG_FILENAME = 'debug.log'
 logging.basicConfig(filename=LOG_FILENAME,level=logging.DEBUG)
@@ -32,7 +32,7 @@ hlt.send_init("ProductionSeizer")
 logging.debug("sent init message to game")
 logging.debug(myID)
 
-r = ReplayBuffer()
+buffer = ReplayBuffer()
 
 tm = TrainingsManager()
 
@@ -48,7 +48,6 @@ logging.debug("loaded latest model")
 
 def termination_handler(signal, frame):
 
-
     tm.content["episodes"] += 1
 
     if(tm.content["epsilon"] > EPSILON_END):
@@ -59,7 +58,7 @@ def termination_handler(signal, frame):
 
     logging.debug("saved manager")
 
-    r.save()
+    buffer.save()
 
     logging.debug("saved buffer")
 
@@ -74,55 +73,40 @@ def termination_handler(signal, frame):
 
 signal.signal(signal.SIGTERM, termination_handler)
 
-game_map.get_frame()
+old_state = None
 
 
 ## START MAIN LOOP
 while True:
 
-    owned_squares = window.get_owned_squares(game_map, myID)
-
-    #logging.debug(owned_squares)
-
-    old_states = window.prepare_for_input(game_map, owned_squares, myID)
-
-    #logging.debug(old_states.shape)
-
-    directions = model.get_actions(old_states, tm.content["epsilon"])
-
-    #logging.debug(directions)
-
-    #logging.debug(game_map.contents)
-
-    old_targets = window.get_targets(game_map, owned_squares, directions)
-
-    moves = [Move(square, direction) for square, direction in zip(owned_squares, directions)]
-
-    hlt.send_frame(moves)
     game_map.get_frame()
 
-    new_targets = window.get_targets(game_map, owned_squares, directions)
+    current_state = window.prepare_for_input_conv(game_map, myID)
 
-    done = [int(t.owner == id) for t in new_targets]
+    logging.debug(current_state.shape)
 
-    new_states = window.prepare_for_input(game_map, new_targets, myID)
+    if(old_state is not None):
 
-    rewards = reward.reward(owned_squares, old_targets, new_targets, myID)
+        reward = reward_functions.reward_global(old_state, current_state)
 
-    #logging.debug(rewards)
+        buffer.add(old_state, action_matrix, reward, current_state, 0)
 
-    for i in range(len(owned_squares)):
 
-        r.add(old_states[i], directions[i], rewards[i], new_states[i], done[i])
-
-    if len(r) >= BATCH_SIZE:
-        batch = r.get_batch(BATCH_SIZE)
+    if len(buffer) >= BATCH_SIZE:
+        batch = buffer.get_batch(BATCH_SIZE)
 
         loss, rewar = model.train(batch)
 
         writer.save_progress(tm.content["timesteps"], loss, rewar)
 
-    #if(timestep % 10 == 0):
-        #logging.debug(model.trainable_variables[0])
+
+
+    action_matrix = model.get_action_matrix(current_state, tm.content["epsilon"])
+
+    moves = [Move(square, action_matrix[square.y, square.x]) for square in game_map if square.owner == myID]
+
+    hlt.send_frame(moves)
+
+    old_state = current_state
 
     tm.content["timesteps"] += 1

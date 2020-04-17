@@ -26,15 +26,13 @@ class DQN(Model):
     def __init__(self):
         super().__init__()
 
-        self.production_layer = tf.keras.layers.Dense(units=2, activation=tf.keras.activations.relu)
+        self.convlayer1 = tf.keras.layers.Conv2D(filters=32, kernel_size = (3,3), padding='same', input_shape = (30, 30, 3), activation=tf.nn.leaky_relu)
 
-        self.strength_layer = tf.keras.layers.Dense(units=2, activation=tf.keras.activations.relu)
+        self.convlayer2 = tf.keras.layers.Conv2D(filters=32, kernel_size = (3,3), padding='same', activation=tf.nn.leaky_relu)
 
-        self.dense1 = tf.keras.layers.Dense(units=4, activation=tf.keras.activations.relu)
+        self.convlayer3 = tf.keras.layers.Conv2D(filters=64, kernel_size = (3,3), padding='same', activation=tf.nn.leaky_relu)
 
-        self.dense2 = tf.keras.layers.Dense(units=4, activation=tf.keras.activations.relu)
-
-        self.output_layer = tf.keras.layers.Dense(units=5, activation=None)
+        self.output_layer = tf.keras.layers.Conv2D(filters=5, kernel_size=(5,5), padding='same')
 
         self.optimizer = tf.keras.optimizers.Adam(LEARNING_RATE)
 
@@ -43,33 +41,32 @@ class DQN(Model):
 
     def call(self, x):
 
-        strength = x[:,0,:]
+        x = self.convlayer1(x)
 
-        production = x[:,1,:]
+        x = self.convlayer2(x)
 
-        s_o = self.strength_layer(strength)
-        p_o = self.production_layer(production)
+        x = self.convlayer3(x)
 
-        stack = tf.concat([s_o, p_o], -1)
+        x = self.output_layer(x)
 
-        o = self.dense1(stack)
-
-        o = self.dense2(o)
-
-        o = self.output_layer(o)
-
-        return o
+        return x
 
 
-    def get_actions(self, states, epsilon=0):
+    def get_action_matrix(self, state, epsilon=0):
         """
         Returns valid actions for all states, using an epsilon-greedy approach
         """
 
-        # Get q-values for states
-        q_values = self(states)
+        input = tf.reshape(state, (1, 30, 30, 3))
 
-        #logging.debug(q_values)
+        # Get q-values for states
+        q_values = self(input)
+
+        #logging.debug(q_values.shape)
+
+        q_values = tf.reshape(q_values, (30,30,5))
+
+        #logging.debug(q_values.shape)
 
         # Get the action that has the highest q-value
         actions = tf.math.argmax(q_values, axis=-1).numpy()
@@ -78,7 +75,7 @@ class DQN(Model):
         randoms = np.random.binomial(n=1, p=epsilon, size=actions.shape)
 
         # Get random actions
-        random_actions = np.random.choice(a=[0, 1, 2, 3, 4], size=actions.shape, p=[0.2, 0.2, 0.2, 0.2, 0.2])
+        random_actions = np.random.choice(a=[0, 1, 2, 3, 4], size=actions.shape, p=[0.1, 0.1, 0.1, 0.1, 0.6])
 
         # Make actions random for states that should be randomized
         actions = actions * np.logical_not(randoms) + randoms * random_actions
@@ -93,8 +90,8 @@ class DQN(Model):
 
         # if model directory is empty make a dummy forward pass
         if len(list_of_files) <=  1:
-            input_map = tf.random.normal(shape=(1,2,NEIGHBORS))
-            self.get_actions(input_map)
+            input_map = tf.random.normal(shape=(30, 30, 3))
+            self.get_action_matrix(input_map)
             self.save_weights(model_dir + 'random_initialization')
 
         # if less then N models. just choose on randomly
@@ -128,18 +125,18 @@ class DQN(Model):
         with tf.GradientTape() as tape:
 
             # Get q-values for old states
-            old_state_values = tf.gather(self(batch["old_states"]), batch["actions"], axis = 1)
+            old_state_values = tf.reduce_sum(tf.gather(self(batch["old_states"]), batch["actions"], axis = 1))
 
             #logging.debug(old_state_values)
 
-            not_terminal_mask = np.where(batch["done"])
+            #not_terminal_mask = np.where(batch["done"])
 
-            not_terminal_states = batch["new_states"][not_terminal_mask]
+            #not_terminal_states = batch["new_states"][not_terminal_mask]
 
             # Get q-values for new states that are not terminal
-            next_state_values = np.zeros(batch["new_states"].shape[0])
+            #next_state_values = np.zeros(batch["new_states"].shape[0])
 
-            next_state_values[not_terminal_mask] = tf.reduce_max(self(not_terminal_states), axis = 1)
+            next_state_values = tf.reduce_sum(tf.reduce_max(self(batch["new_states"]), axis = 1))
 
             expected_values = batch["rewards"] + GAMMA * next_state_values
 
@@ -171,8 +168,8 @@ class DQN(Model):
         list_of_files = glob.glob(model_dir+'*') # * means all if need specific format then *.csv
 
         if len(list_of_files) <=  1:
-            input_map = tf.random.normal(shape=(1, 2, NEIGHBORS))
-            self.get_actions(input_map)
+            input_map = tf.random.normal(shape=(30, 30, 3))
+            self.get_action_matrix(input_map)
             self.save_weights(model_dir + 'random_initialization')
 
         list_of_files = sorted(os.listdir(model_dir), key=lambda f: os.path.getmtime(model_dir + f))

@@ -8,20 +8,21 @@ class ReplayBuffer:
     """
 
     def __init__(self):
+        self.count = 0
+        self.buffer = {
+        "new_states": [],
+        "rewards": [],
+        "actions": [],
+        "old_states" : [],
+        "done": []
+        }
+
         try:
             with open("buffer.pickle", "rb") as file:
                 self.buffer = pickle.load(file)
                 self.count = len(self.buffer["new_states"])
         except FileNotFoundError:
             open("buffer.pickle", "a").close()
-            self.count = 0
-            self.buffer = {
-            "new_states": [],
-            "rewards": [],
-            "actions": [],
-            "old_states" : [],
-            "done": []
-            }
         except EOFError:
             return
 

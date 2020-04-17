@@ -8,7 +8,7 @@ class TrainingsManager:
             with open("manager.pickle", "rb") as file:
                 self.content = pickle.load(file)
         except FileNotFoundError:
-            open("buffer.pickle", "a").close()
+            open("manager.pickle", "a").close()
             self.content = {
             "epsilon" : EPSILON_START,
             "timesteps" : 0,

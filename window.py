@@ -34,12 +34,44 @@ def prepare_for_input(game_map, squares, id):
         # Run through all neighbors add add strength and production part to corresponding array slice
         for current_n in n:
 
-            states[i, 0, j] = current_n.strength if current_n.owner == id else -current_n.strength
-            states[i, 1, j] = current_n.production if current_n.owner == id else -current_n.production
+            d = game_map.get_distance(squares[i], current_n)
+
+            div = d if d != 0 else 1
+
+            #logging.debug(current_n)
+            states[i, 0, j] = current_n.strength / div if current_n.owner == id else -current_n.strength / div
+            states[i, 1, j] = current_n.production / div if current_n.owner == id else -current_n.production / div
 
             j += 1
-
+        #logging.debug("")
     return states
+
+def prepare_for_input_conv(game_map, id):
+
+    state = np.zeros((30, 30, 3))
+
+    for y in range(30):
+        for x in range(30):
+            current = game_map.contents[y][x]
+
+            state[y,x,0] = current.strength
+            state[y,x,2] = current.production
+
+            if(current.owner == id):
+                state[y, x, 1] = 1
+            elif(current.owner != 0):
+                state[y, x, 1] = -1
+            else:
+                state[y, x, 1] = 0
+
+    state[:,:,0] /= 255
+    state[:,:,0] -= 0.5
+    state[:,:,2] /= 17
+    state[:,:,2] -= 0.5
+
+    return state
+
+
 
 def get_targets(game_map, squares, actions):
     """
