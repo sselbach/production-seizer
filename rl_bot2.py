@@ -99,11 +99,9 @@ while True:
 
         writer.save_progress(tm.content["timesteps"], loss, rewar)
 
-
-
     action_matrix = model.get_action_matrix(current_state, tm.content["epsilon"])
 
-    moves = [Move(square, action_matrix[square.y, square.x]) for square in game_map if square.owner == myID]
+    moves = [Move(square, action_matrix[square.y, square.x] if square.strength > 0 else STILL) for square in game_map if square.owner == myID]
 
     hlt.send_frame(moves)
 
