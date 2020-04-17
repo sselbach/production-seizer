@@ -1,7 +1,7 @@
 import tensorflow as tf
 
 import hlt
-from hlt import Move, Square
+from hlt import Move, Square, STILL
 
 from hyperparameters import BATCH_SIZE, MODEL_PATH, EPSILON_END, EPSILON_DECAY
 import window
