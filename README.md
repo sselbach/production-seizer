@@ -56,4 +56,10 @@ hyperparameters.py| Specifies all the hyperparameters used, general ones as well
 		 3. Store the loss and the reward in the replay buffer for future batch samples
 3. If a game ends, save the current model in the specified directory and produce a plot monitoring the training process in that episode
 
+## Results
+
+### First Steps
+![](First_Visual.gif)
+
+
 
