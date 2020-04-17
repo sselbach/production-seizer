@@ -43,7 +43,7 @@ while True:
 
     current_state = window.prepare_for_input_conv(game_map, myID)
 
-    action_matrix = model.get_action_matrix(current_state, tm.content["epsilon"])
+    action_matrix = model.get_action_matrix(current_state, 0)
 
     moves = [Move(square, action_matrix[square.y, square.x] if square.strength > 0 else STILL) for square in game_map if square.owner == myID]
 
