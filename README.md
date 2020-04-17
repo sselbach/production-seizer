@@ -59,6 +59,8 @@ hyperparameters.py| Specifies all the hyperparameters used, general ones as well
 ## Results
 
 ### First Steps
+We started with a simple artificial neural network, containg the usal input layer, a filtering layer followed by two Dense layers with rectified linear unit (ReLU) as activation function. After an additional Output layer the result. We optimized by using the Adam function and the loss function was computed with the Huber function.
+After 1000 Episodes the Reward/Loss ratio looked like that: ![](First_graph.jpg)
 ![](First_Visual.gif)
 
 
