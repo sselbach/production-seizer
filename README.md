@@ -62,6 +62,8 @@ hyperparameters.py| Specifies all the hyperparameters used, general ones as well
 We started with a simple artificial neural network, containg the usal input layer, a filtering layer followed by two Dense layers with rectified linear unit (ReLU) as activation function. After an additional Output layer the result. We optimized by using the Adam function and the loss function was computed with the Huber function.
 
 After 1000 Episodes the Reward/Loss ratio looked like that: ![](First_graph.jpg)
+
+
 ![](First_Visual.gif)
 As is seen, the bots perform... well lets just say, they do something.
 Here a short list of the parameters used:
@@ -76,6 +78,9 @@ LEARNING_RATE | 0.001
 BUFFER_SIZE | 100000
 DISTANCE | 3
 NEIGHBORS | 2 * DISTANCE * DISTANCE + 2 * DISTANCE + 1
+
+### Improving
+
 
 
 
