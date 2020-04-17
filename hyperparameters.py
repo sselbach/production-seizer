@@ -3,8 +3,8 @@ The hyperparameters used by all different parts of our algorithms
 """
 
 # General
-MODEL_PATH = "models/current/"
-WRITER_DIRECTORY = 'experiments/test/'
+MODEL_PATH = "models/vanilla_selfplay/"
+WRITER_DIRECTORY = 'experiments/vanilla_selfplay/'
 
 # Model
 EPSILON_START = 0.8

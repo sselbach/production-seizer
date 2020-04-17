@@ -69,16 +69,13 @@ class Writer(object):
 
         df = pd.read_csv(self.filename)
         train_step = df["step"].to_numpy()[-1]
-        episodes = df["episode"].to_numpy()[-1]
-
 
         if average:
             fig_name = WRITER_DIRECTORY + self.model_name + '_' + str(self.episodes) + '.png'
             self.plot_progress_sub(fig_name, "episode", "avg reward", "avg loss", rewards)
         else:
             fig_name = WRITER_DIRECTORY + self.model_name + '_' + str(train_step) + '.png'
-            self.plot_progress_sub(fig_name, "steps", "reward", "loss", running)
-
+            self.plot_progress_sub(fig_name, "steps", "reward", "loss", rewards)
         # if plotting then episode over, save average over episode and reset
         self.episodes+=1
         with open(self.filename, 'a', newline='') as file:
@@ -109,11 +106,10 @@ class Writer(object):
             if stepstr!="steps":
                 ax2.plot(df_x, df_reward, 'r')
             else: ax2.plot(df_reward, 'r')
-
         else:
             df = df[lossstr]
             pl.figure()
-            plt.plot()
+            plt.plot(df)
         plt.title(self.model_name)
         plt.savefig(fig_name)
 
