@@ -61,8 +61,9 @@ def termination_handler(signal, frame):
     logging.debug("saved manager")
 
     logging.debug(old_state)
+    logging.debug(action_matrix)
 
-    buffer.add(old_state, action_matrix, reward_functions.reward_terminal(old_states), np.zeros((30,30,3)), False)
+    buffer.add(old_state, action_matrix, reward_functions.reward_terminal(old_state), np.zeros((30,30,3)), False)
 
     buffer.save()
 
@@ -80,6 +81,8 @@ def termination_handler(signal, frame):
 signal.signal(signal.SIGTERM, termination_handler)
 
 old_state = None
+
+logging.debug(len(buffer))
 
 ## START MAIN LOOP
 while True:

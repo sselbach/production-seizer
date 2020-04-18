@@ -26,15 +26,21 @@ def reward(owned_squares, old_targets, new_targets, id):
 
 def reward_global(old_state, new_state):
 
-    difference = new_state - old_state
+    logging.debug("REWARDS")
 
-    owner_layer = difference[:,:,1]
+    mask1 = old_state[:,:,1] == 1
+    mask2 = new_state[:,:,1] == 1
 
-    strength = difference[:,:,0] * owner_layer
+    logging.debug(mask1.shape)
 
-    production = difference[:,:,2] * owner_layer
+    old_strength = old_state[:,:,0] * mask1
+    new_strength = new_state[:,:,0] * mask1
 
-    return np.sum(strength) + np.sum(production)
+    old_production = old_state[:,:,2] * mask1
+    new_production = new_state[:,:,2] * mask1
+
+    #return np.sum(strength) + 2 * np.sum(production)
+    return np.sum(new_strength) - np.sum(old_strength) + 3 * (np.sum(new_production) - np.sum(old_production))
 
 def reward_terminal(state):
     owner_layer = state[:,:,1]

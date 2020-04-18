@@ -1,6 +1,8 @@
 import numpy as np
 import pickle
 from hyperparameters import BUFFER_SIZE
+import logging
+import json
 
 class ReplayBuffer:
     """
@@ -41,6 +43,9 @@ class ReplayBuffer:
         """
         Adds a SARS tuple to the buffer
         """
+
+        #logging.debug("ADD")
+
         self.buffer["old_states"].append(old_state)
         self.buffer["new_states"].append(new_state)
         self.buffer["actions"].append(action)
@@ -56,6 +61,8 @@ class ReplayBuffer:
 
         else:
             self.count += 1
+
+        #logging.debug("DONE ADD")
 
 
     def get_batch(self, k):
