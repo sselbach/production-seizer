@@ -26,11 +26,11 @@ class DQN(Model):
     def __init__(self):
         super().__init__()
 
-        self.convlayer1 = tf.keras.layers.Conv2D(filters=32, kernel_size = (3,3), padding='same', input_shape = (30, 30, 3), activation=tf.nn.leaky_relu)
+        self.convlayer1 = tf.keras.layers.Conv2D(filters=64, kernel_size = (3,3), padding='same', input_shape = (30, 30, 3), activation=tf.nn.leaky_relu)
 
         self.convlayer2 = tf.keras.layers.Conv2D(filters=32, kernel_size = (3,3), padding='same', activation=tf.nn.leaky_relu)
 
-        #self.convlayer3 = tf.keras.layers.Conv2D(filters=64, kernel_size = (3,3), padding='same', activation=tf.nn.leaky_relu)
+        self.convlayer3 = tf.keras.layers.Conv2D(filters=64, kernel_size = (3,3), padding='same', activation=tf.nn.leaky_relu)
 
         self.output_layer = tf.keras.layers.Conv2D(filters=5, kernel_size=(5,5), padding='same')
 
@@ -45,7 +45,7 @@ class DQN(Model):
 
         x = self.convlayer2(x)
 
-        #x = self.convlayer3(x)
+        x = self.convlayer3(x)
 
         x = self.output_layer(x)
 
@@ -74,10 +74,12 @@ class DQN(Model):
         # Generate which actions should be randomized using epsilon
         randoms = np.random.binomial(n=1, p=epsilon, size=actions.shape)
 
-        # Get random actions
-        random_actions = np.random.choice(a=[0, 1, 2, 3, 4], size=actions.shape, p=[0.1, 0.1, 0.1, 0.1, 0.6])
+        random_actions = np.random.randint(5,size=actions.shape)
 
-        logging.debug(random_actions)
+        # Get random actions
+        #random_actions = np.random.choice(a=[0, 1, 2, 3, 4], size=actions.shape, p=[0.1, 0.1, 0.1, 0.1, 0.6])
+
+        #logging.debug(random_actions)
 
         # Make actions random for states that should be randomized
         actions = actions * np.logical_not(randoms) + randoms * random_actions
@@ -161,17 +163,22 @@ class DQN(Model):
 
             expected_values = batch["rewards"].reshape((BATCH_SIZE,1,1)) + GAMMA * next_state_values
 
+            #expected_values = batch["rewards"] + GAMMA * next_state_values
+
             #expected_values = tf.constant(expected_values)
 
-            logging.debug(expected_values)
+            logging.debug(batch["rewards"])
 
             # Calculate loss
             #loss = self.loss_function(expected_values, old_state_values)
 
-            loss = tf.square(expected_values - old_state_values)
+            #loss = tf.square(expected_values - old_state_values)
+
+            loss = self.loss_function(expected_values, old_state_values)
 
             #logging.debug(loss)
 
+            #logging.debug(batch["rewards"])
             # Get means for rewards for later plotting
             #loss_mean = tf.reduce_mean(loss, axis=-1).numpy()
             reward_mean = np.mean(batch["rewards"])

@@ -24,7 +24,7 @@ def prepare_for_input(game_map, squares, id):
     """
 
     # Initialize array with correct shape
-    states = np.zeros((len(squares), 2, NEIGHBORS))
+    states = np.zeros((len(squares), NEIGHBORS * 2))
 
     for i in range(len(squares)):
 
@@ -34,13 +34,9 @@ def prepare_for_input(game_map, squares, id):
         # Run through all neighbors add add strength and production part to corresponding array slice
         for current_n in n:
 
-            d = game_map.get_distance(squares[i], current_n)
-
-            div = d if d != 0 else 1
-
             #logging.debug(current_n)
-            states[i, 0, j] = current_n.strength / div if current_n.owner == id else -current_n.strength / div
-            states[i, 1, j] = current_n.production / div if current_n.owner == id else -current_n.production / div
+            states[i, j] = current_n.strength  if current_n.owner == id else -current_n.strength
+            states[i, j + NEIGHBORS] = current_n.production if current_n.owner == id else -current_n.production
 
             j += 1
         #logging.debug("")

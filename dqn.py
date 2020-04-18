@@ -26,13 +26,9 @@ class DQN(Model):
     def __init__(self):
         super().__init__()
 
-        self.production_layer = tf.keras.layers.Dense(units=2, activation=tf.keras.activations.relu)
+        self.dense1 = tf.keras.layers.Dense(units=8, activation=tf.nn.leaky_relu)
 
-        self.strength_layer = tf.keras.layers.Dense(units=2, activation=tf.keras.activations.relu)
-
-        self.dense1 = tf.keras.layers.Dense(units=4, activation=tf.keras.activations.relu)
-
-        self.dense2 = tf.keras.layers.Dense(units=4, activation=tf.keras.activations.relu)
+        self.dense2 = tf.keras.layers.Dense(units=8, activation=tf.nn.leaky_relu)
 
         self.output_layer = tf.keras.layers.Dense(units=5, activation=None)
 
@@ -43,16 +39,7 @@ class DQN(Model):
 
     def call(self, x):
 
-        strength = x[:,0,:]
-
-        production = x[:,1,:]
-
-        s_o = self.strength_layer(strength)
-        p_o = self.production_layer(production)
-
-        stack = tf.concat([s_o, p_o], -1)
-
-        o = self.dense1(stack)
+        o = self.dense1(x)
 
         o = self.dense2(o)
 
@@ -93,7 +80,7 @@ class DQN(Model):
 
         # if model directory is empty make a dummy forward pass
         if len(list_of_files) <=  1:
-            input_map = tf.random.normal(shape=(1,2,NEIGHBORS))
+            input_map = tf.random.normal(shape=(1,2 * NEIGHBORS))
             self.get_actions(input_map)
             self.save_weights(model_dir + 'random_initialization')
 
@@ -130,7 +117,7 @@ class DQN(Model):
             # Get q-values for old states
             old_state_values = tf.gather(self(batch["old_states"]), batch["actions"], axis = 1)
 
-            #logging.debug(old_state_values)
+            logging.debug(old_state_values.shape)
 
             not_terminal_mask = np.where(batch["done"])
 
@@ -171,7 +158,7 @@ class DQN(Model):
         list_of_files = glob.glob(model_dir+'*') # * means all if need specific format then *.csv
 
         if len(list_of_files) <=  1:
-            input_map = tf.random.normal(shape=(1, 2, NEIGHBORS))
+            input_map = tf.random.normal(shape=(1, 2 * NEIGHBORS))
             self.get_actions(input_map)
             self.save_weights(model_dir + 'random_initialization')
 
