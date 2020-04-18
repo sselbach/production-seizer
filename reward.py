@@ -14,7 +14,7 @@ def reward(owned_squares, old_targets, new_targets, id):
         if(n.owner != id):
             rewards.append(-5)
 
-        elif(o.owner == 0 and n.owner == id):
+        elif(o.owner != id and n.owner == id):
             rewards.append(10)
 
         else:

@@ -119,7 +119,7 @@ class DQN(Model):
             # Get q-values for old states
             old_state_values = tf.gather_nd(self(batch["old_states"]), action_indices)
 
-            logging.debug(old_state_values.shape)
+            #logging.debug(old_state_values.shape)
 
             not_terminal_mask = np.where(batch["done"])
 
