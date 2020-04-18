@@ -87,7 +87,7 @@ NEIGHBORS | 2 * DISTANCE * DISTANCE + 2 * DISTANCE + 1
 ### Improving
 
 
-### Usage
+## Usage
 
 ### Setting up a conda environments
 In order to run the code we need a tensorflow environment with some extra packages. For that see the requirements.txt ifle. If you have a cuda enabled GPU you can choose to run tensorflow on your GPU by choosing requirements_gpu.txt. You then need to add the key word "gpu" when running the scripts.
