@@ -60,13 +60,16 @@ hyperparameters.py| Specifies all the hyperparameters used, general ones as well
 
 ### First Steps
 We started with a simple artificial neural network, containg the usal input layer, a filtering layer followed by two Dense layers with rectified linear unit (ReLU) as activation function. We optimized by using the Adam function and the loss function was computed with the Huber function.
+//TO DO: maybe code snippet of init architecture (in telegram)
+
+//TO DO: what kind of reward function used?
 
 After 1000 Episodes the Reward/Loss ratio looked like that: 
 First DQN Reward/Loss Graph| First Game against the selfplaybot
 -----|-----
 ![hier steht ihre werbung](First_graph.jpg)|![hier nicht](First_Visual.gif)
 
-As is seen, the bots perform... well lets just say, they do something.
+As is seen, the bots perform... well lets just say, they do something. 
 Here a short list of the parameters used:
 
 Parameter | Value
