@@ -110,5 +110,5 @@ Execute the training shell script in the terminal:
 ```console
 (<env_name>) usr@dev:~/production-seizer$ ./run_training.sh  # if usinig cuda add: gpu
 ```
-In the "production-seizer" folder .hlt will be created which one upload to “[a visualizer](https://2016.halite.io/local_visualizer.html)” to see a replay of the game.
+In the "production-seizer" folder .hlt will be created which one upload to [a visualizer](https://2016.halite.io/local_visualizer.html) to see a replay of the game.
 In the result directory a .csv will be created containing loss and reward for each time step and also averages over one episode which are also automatically plotted and saved. 
