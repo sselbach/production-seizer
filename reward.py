@@ -35,3 +35,14 @@ def reward_global(old_state, new_state):
     production = difference[:,:,2] * owner_layer
 
     return np.sum(strength) + np.sum(production)
+
+def reward_terminal(state):
+    owner_layer = state[:,:,1]
+
+    winner = np.sum(owner_layer)
+
+    if(winner > 0):
+        return 1
+
+    else:
+        return -1

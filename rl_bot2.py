@@ -21,6 +21,8 @@ from trainings_manager import TrainingsManager
 from replay_buffer import ReplayBuffer
 from dqn_conv import DQN
 
+import numpy as np
+
 LOG_FILENAME = 'debug.log'
 logging.basicConfig(filename=LOG_FILENAME,level=logging.DEBUG)
 logging.warning(f"starting new episode at {datetime.now().strftime('%d-%m-%Y_%I-%M-%S_%p')}")
@@ -58,6 +60,10 @@ def termination_handler(signal, frame):
 
     logging.debug("saved manager")
 
+    logging.debug(old_state)
+
+    buffer.add(old_state, action_matrix, reward_functions.reward_terminal(old_states), np.zeros((30,30,3)), False)
+
     buffer.save()
 
     logging.debug("saved buffer")
@@ -75,7 +81,6 @@ signal.signal(signal.SIGTERM, termination_handler)
 
 old_state = None
 
-
 ## START MAIN LOOP
 while True:
 
@@ -83,13 +88,13 @@ while True:
 
     current_state = window.prepare_for_input_conv(game_map, myID)
 
-    logging.debug(current_state.shape)
+    #logging.debug(current_state.shape)
 
     if(old_state is not None):
 
         reward = reward_functions.reward_global(old_state, current_state)
 
-        buffer.add(old_state, action_matrix, reward, current_state, 0)
+        buffer.add(old_state, action_matrix, reward, current_state, True)
 
 
     if len(buffer) >= BATCH_SIZE:

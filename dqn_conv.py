@@ -9,7 +9,7 @@ from tensorflow.keras import  Model
 
 import numpy as np
 
-from hyperparameters import LEARNING_RATE, NEIGHBORS, DISTANCE, GAMMA
+from hyperparameters import LEARNING_RATE, NEIGHBORS, DISTANCE, GAMMA, BATCH_SIZE
 from hlt import NORTH, EAST, SOUTH, WEST, STILL, Move, Square
 
 import random
@@ -28,7 +28,7 @@ class DQN(Model):
 
         self.convlayer1 = tf.keras.layers.Conv2D(filters=32, kernel_size = (3,3), padding='same', input_shape = (30, 30, 3), activation=tf.nn.leaky_relu)
 
-        self.convlayer2 = tf.keras.layers.Conv2D(filters=32, kernel_size = (3,3), padding='same', activation=tf.nn.leaky_relu)
+        #self.convlayer2 = tf.keras.layers.Conv2D(filters=32, kernel_size = (3,3), padding='same', activation=tf.nn.leaky_relu)
 
         self.convlayer3 = tf.keras.layers.Conv2D(filters=64, kernel_size = (3,3), padding='same', activation=tf.nn.leaky_relu)
 
@@ -43,7 +43,7 @@ class DQN(Model):
 
         x = self.convlayer1(x)
 
-        x = self.convlayer2(x)
+        #x = self.convlayer2(x)
 
         x = self.convlayer3(x)
 
@@ -124,24 +124,42 @@ class DQN(Model):
 
         with tf.GradientTape() as tape:
 
+            indices = np.indices((BATCH_SIZE, 30, 30))
+
+            indices = np.moveaxis(indices, 0, -1)
+
+            indices = np.append(indices, batch["actions"].reshape((BATCH_SIZE, 30, 30, 1)), axis = -1)
+
+            old_state_values = tf.gather_nd(self(batch["old_states"]), indices)
+
             # Get q-values for old states
-            old_state_values = tf.reduce_sum(tf.gather(self(batch["old_states"]), batch["actions"], axis = 1))
+            old_state_values = tf.reduce_sum(old_state_values, axis=(1,2))
 
             #logging.debug(old_state_values)
 
-            #not_terminal_mask = np.where(batch["done"])
+            not_terminal_mask = np.where(batch["done"])
 
-            #not_terminal_states = batch["new_states"][not_terminal_mask]
+            #logging.debug(not_terminal_mask)
+
+            not_terminal_states = batch["new_states"][not_terminal_mask]
 
             # Get q-values for new states that are not terminal
-            #next_state_values = np.zeros(batch["new_states"].shape[0])
+            next_state_values = np.zeros(batch["new_states"].shape[0])
 
-            next_state_values = tf.reduce_sum(tf.reduce_max(self(batch["new_states"]), axis = 1))
+            next_state_values[not_terminal_mask] = tf.reduce_sum(tf.reduce_max(self(not_terminal_states), axis = 1), axis=(1,2))
+
+            #logging.debug(batch["rewards"])
 
             expected_values = batch["rewards"] + GAMMA * next_state_values
 
+            #expected_values = tf.constant(expected_values)
+
+            #logging.debug(expected_values)
+
             # Calculate loss
             loss = self.loss_function(expected_values, old_state_values)
+
+            logging.debug(loss)
 
             # Get means for rewards for later plotting
             #loss_mean = tf.reduce_mean(loss, axis=-1).numpy()
