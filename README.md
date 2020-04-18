@@ -100,6 +100,7 @@ In order to run the code we need a tensorflow environment with some extra packag
 (<env_name>) username@dev:~/production-seizer$ conda deactivate # deactivates environment
 (base) username@dev:~/production-seizer$
 ```
+### The Thing wtih compiling Halte //TO DO
 
 ### Running Training
 To run the training script please create directory for saving models and one for saving the results. Then adjust the following parameters in the hyperparameters.py:
