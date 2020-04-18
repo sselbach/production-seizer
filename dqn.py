@@ -114,8 +114,10 @@ class DQN(Model):
 
         with tf.GradientTape() as tape:
 
+            action_indices = np.append(np.arange(batch["actions"].shape[0]).reshape(-1,1), batch["actions"].reshape(-1,1), axis = 1)
+
             # Get q-values for old states
-            old_state_values = tf.gather(self(batch["old_states"]), batch["actions"], axis = 1)
+            old_state_values = tf.gather_nd(self(batch["old_states"]), action_indices)
 
             logging.debug(old_state_values.shape)
 
