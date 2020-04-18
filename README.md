@@ -52,7 +52,7 @@ hyperparameters.py| Specifies all the hyperparameters used, general ones as well
    6. Save trajectory to replay buffer
 		 * **Training loop:**
 		 1. Sample a batch from the replay buffer (batch size dependen on the parameters set)
-		 2. Perform gradient descent on that batch to minimize this loss
+		 2. Perform gradient descent on that batch to minimize this loss ## TO DO: further explanation / code snippet?
 		 3. Store the loss and the reward in the replay buffer for future batch samples
 3. If a game ends, save the current model in the specified directory and produce a plot monitoring the training process in that episode
 
@@ -71,6 +71,8 @@ First DQN Reward/Loss Graph| First Game against the selfplaybot
 
 As is seen, the bots perform... well lets just say, they do something. 
 Here a short list of the parameters used:
+
+// TO DO: some of the hyperparameters have to be explained further
 
 Parameter | Value
 ------|-----
