@@ -4,21 +4,21 @@
 
 ## Introduction
 
-For our final project in the course of “Implementing ANNs with TensorFlow” we decided to revive a challenge proposed by TWO SIGMA in 2016. The challenge was composed of the provided game “[Halite](https://2016.halite.io/index.html)” and its corresponding rule set. The competition then started in November 2016 and finalized 3 month later, in February 2017. The sent in solutions were a mix of different approaches, consisting mostly of "good old-fashioned ai" based bots using rule sets and search algorithms. However, also some Machine Learning based bots participated with some success. In our growing interest in self learning systems we formulated our idea to challenge the competition with an ANN based bot. In this report we will show our different approaches, our successful as well as our not so successful ones.
+For our final project in the course of “Implementing ANN with TensorFlow” we decided to revive the challenge proposed by TWO SIGMA in 2016. The challenge was composed of the provided game “[Halite](https://2016.halite.io/index.html)” and its corresponding rule set. The competition then started in November 2016 and finalized 3 month later, in February 2017. The send in application were a mix of different approaches, consisting of C#, python, java scripts etc. But also some Machine Learning based bots. In our growing interest in self learning systems we formulated our idea to challenge the competition with an ANN based bot. In this report we will show our different approaches, our successful as well as our not so successful ones.
 
 ### The Rules
 
-Halite is played on a rectangular grid, where the size correlates with the number of players (2-6). The goal is to seize the means of production. Each player starts on a specific tile of the grid, all other tiles are considered unowned. The grid is symmetric, meaning no player has an advantage due to their starting position. The tiles come in different qualities. A tile produces or enhances one drone per turn with the strength of its production value. Drones have the ability to move one cell in a cardinal direction or to stay at their momentary tile. If a drone chooses to move, it does *not* grow by the production value of its cell. An unowned tile can be converted into an owned one by being occupied by a drone. The strength of the drones is capped to the value of 255. Tiles owned by foreign drones can be conquered by overwhelming through higher strength. The strength values get subtracted. When all enemy drones and tiles are conquered, the game ends. The map has a toroidal structure, meaning that if a drone exits the map on one side it will appear on the opposite side.
+Halite is played on a rectangular grid, where the size correlates with the number of players (2-6). The goal is to seize the means of production. Each player starts on a specific tile of the grid, all other tiles are considered unowned. The tiles come in different qualities. A tile produces or enhances one drone per turn with the strength of its quality value. Drones have the ability to move in cityblock distance or to stay at their momentary tile. An unowned tile can be converted into an owned one by being occupied by a drone. The strength of the drones is capped to the value of 255. Tiles owned by foreign drones can be conquered by overwhelming through higher strength. The strength values get subtracted. When all enemy drones and tiles are conquered, the game ends. The map is continuous, go to far left and you will appear on the right (bottom and top the same).
 
 ![](halite_gif.gif)
 
 ## Our Goal
 
-The goal of our final project was to use Deep Q Reinforcement Learning to play this game in a sufficiently efficient way.
+The Goal of our final project was to train a Reinforcement Learning Deep Q Network to play this game in a sufficient efficient way.
 
-### What is a Deep-Q Network (DQN)?
+### Whats a Deep-Q network (DQN)?
 
-A DQN is a deep neural network used in a reinforcement learning agent to approximate its Q function. RL is about training an agent to interact with its environment to achieve a certain goal. To achieve said goals the agent has to decide on an action <img src="https://render.githubusercontent.com/render/math?math=a"> which then leads to certain states <img src="https://render.githubusercontent.com/render/math?math=s">. These actions can impact the reward in a positive or negative way. The agent's purpose is, to maximize the reward in each episode. An episode is anything between the first state and the terminal state. We reinforce the agent to learn to perform the most rewarding action by experience. How rewarding an action can be is not obvious in most scenarios. Therefore a Markov decision process is initiated to save every action to each state. To allocate a reward <img src="https://render.githubusercontent.com/render/math?math=Q"> to a state we use the Q-function: <img src="https://render.githubusercontent.com/render/math?math=Q(s,a)= r(s,a) %2B\gamma  max  Q(s',a)">
+A DQN is a reinforcment learning(RL) based convolutional neural network(CNN). RL is about training an agent to interact with its environment to achieve a certain goal. To achieve said goals the agent has to decide on an action <img src="https://render.githubusercontent.com/render/math?math=a"> which then leads to certain states <img src="https://render.githubusercontent.com/render/math?math=s">. These actions can impact the reward in a positive or negative way. The agent's purpose is, to maximize the reward in each episode. An episode is anything between the first state and the terminal state. We reinforce the agent to learn to perform the most rewarding action by experience. How rewarding an action can be is not obvious in most scenarios. Therefore a Markov decision process is initiated to save every action to each state. To allocate a reward <img src="https://render.githubusercontent.com/render/math?math=Q"> to a state we use the Q-function: <img src="https://render.githubusercontent.com/render/math?math=Q(s,a)= r(s,a) %2B\gamma  max  Q(s',a)">
 Gamma here is the discount factor which controls the contribution of rewards further in the future. Wheras <img src="https://render.githubusercontent.com/render/math?math=s'">is the future state. We select an action using the epsilon-greedy policy. With the probability epsilon, we select a random action a and with probability 1-epsilon, we select an action that has a maximum Q-value, such as <img src="https://render.githubusercontent.com/render/math?math=a = argmax(Q(s,a,w))">. We perform this action and move to the next state <img src="https://render.githubusercontent.com/render/math?math=s',"> while also storing this choice in our replay buffer as <img src="https://render.githubusercontent.com/render/math?math=(s,a,r,s')">. In deep Q-learning, we use a neural network to approximate the Q-value function. The state is given as the input and the Q-value of all possible actions is generated as the output. The Loss is the squared difference between target Q and predicted Q (mean-squared-error). Perform gradient descent with respect to our actual network parameters in order to minimize this loss.  Repeat these steps for M number of episodes.
 
 
@@ -87,5 +87,28 @@ NEIGHBORS | 2 * DISTANCE * DISTANCE + 2 * DISTANCE + 1
 ### Improving
 
 
+### Usage
 
+### Setting up a conda environments
+In order to run the code we need a tensorflow environment with some extra packages. For that see the requirements.txt ifle. If you have a cuda enabled GPU you can choose to run tensorflow on your GPU by choosing requirements_gpu.txt. You then need to add the key word "gpu" when running the scripts.
 
+```console
+(base) username@dev:~/production-seizer$ conda create --name <env_name> --file requirements.txt
+(base) username@dev:~/production-seizer$ conda actvate <env_name> # activates the environment
+(<env_name>) username@dev:~/production-seizer$ conda deactivate # deactivates environment
+(base) username@dev:~/production-seizer$
+```
+
+### Running Training
+To run the training script please create directory for saving models and one for saving the results. Then adjust the following parameters in the hyperparameters.py:
+
+```python
+MODEL_PATH = "<model_dir>/"
+WRITER_DIRECTORY = '<result_dir>/'
+```
+Execute the training shell script in the terminal:
+```console
+(<env_name>) usr@dev:~/production-seizer$ ./run_training.sh  # if usinig cuda add: gpu
+```
+In the "production-seizer" folder .hlt will be created which one upload to “[a visualizer](https://2016.halite.io/local_visualizer.html)” to see a replay of the game.
+In the result directory a .csv will be created containing loss and reward for each time step and also averages over one episode which are also automatically plotted and saved. 
