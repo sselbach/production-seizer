@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="mobile-web-app-capable" content="yes">
+    <title>
+        Solving the Halite Challenge with a Deep-Q Network - HackMD
+    </title>
+    <link rel="icon" type="image/png" href="https://hackmd.io/favicon.png">
+    <link rel="apple-touch-icon" href="https://hackmd.io/apple-touch-icon.png">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha256-916EbMg70RQy9LHiGkXzG8hSg9EdNy97GazNG/aiY1w=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ionicons/2.0.1/css/ionicons.min.css" integrity="sha256-3iu9jgsy9TpTwXKb7bNQzqWekRX7pPK+2OLj3R922fo=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/octicons/3.5.0/octicons.min.css" integrity="sha256-QiWfLIsCT02Sdwkogf6YMiQlj4NE84MKkzEMkZnMGdg=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.5.1/themes/prism.min.css" integrity="sha256-vtR0hSWRc3Tb26iuN2oZHt3KRUomwTufNIf5/4oeCyg=" crossorigin="anonymous" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@hackmd/emojify.js@2.1.0/dist/css/basic/emojify.min.css" integrity="sha256-UOrvMOsSDSrW6szVLe8ZDZezBxh5IoIfgTwdNDgTjiU=" crossorigin="anonymous" />
+    <style>
+        @charset "UTF-8";@import url(https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,500,500i|Source+Code+Pro:300,400,500|Source+Sans+Pro:300,300i,400,400i,600,600i|Source+Serif+Pro&subset=latin-ext);.hljs{display:block;background:#fff;padding:.5em;color:#333;overflow-x:auto}.hljs-comment,.hljs-meta{color:#969896}.hljs-emphasis,.hljs-quote,.hljs-string,.hljs-strong,.hljs-template-variable,.hljs-variable{color:#df5000}.hljs-keyword,.hljs-selector-tag,.hljs-type{color:#a71d5d}.hljs-attribute,.hljs-bullet,.hljs-literal,.hljs-number,.hljs-symbol{color:#0086b3}.hljs-built_in,.hljs-builtin-name{color:#005cc5}.hljs-name,.hljs-section{color:#63a35c}.hljs-tag{color:#333}.hljs-attr,.hljs-selector-attr,.hljs-selector-class,.hljs-selector-id,.hljs-selector-pseudo,.hljs-title{color:#795da3}.hljs-addition{color:#55a532;background-color:#eaffea}.hljs-deletion{color:#bd2c00;background-color:#ffecec}.hljs-link{text-decoration:underline}.markdown-body{font-size:16px;line-height:1.5;word-wrap:break-word}.markdown-body:after,.markdown-body:before{display:table;content:""}.markdown-body:after{clear:both}.markdown-body>:first-child{margin-top:0!important}.markdown-body>:last-child{margin-bottom:0!important}.markdown-body a:not([href]){color:inherit;text-decoration:none}.markdown-body .absent{color:#c00}.markdown-body .anchor{float:left;padding-right:4px;margin-left:-20px;line-height:1}.markdown-body .anchor:focus{outline:none}.markdown-body blockquote,.markdown-body dl,.markdown-body ol,.markdown-body p,.markdown-body pre,.markdown-body table,.markdown-body ul{margin-top:0;margin-bottom:16px}.markdown-body hr{height:.25em;padding:0;margin:24px 0;background-color:#e7e7e7;border:0}.markdown-body blockquote{font-size:16px;padding:0 1em;color:#777;border-left:.25em solid #ddd}.markdown-body blockquote>:first-child{margin-top:0}.markdown-body blockquote>:last-child{margin-bottom:0}.markdown-body kbd,.popover kbd{display:inline-block;padding:3px 5px;font-size:11px;line-height:10px;color:#555;vertical-align:middle;background-color:#fcfcfc;border:1px solid #ccc;border-bottom-color:#bbb;border-radius:3px;box-shadow:inset 0 -1px 0 #bbb}.markdown-body .loweralpha{list-style-type:lower-alpha}.markdown-body h1,.markdown-body h2,.markdown-body h3,.markdown-body h4,.markdown-body h5,.markdown-body h6{margin-top:24px;margin-bottom:16px;font-weight:600;line-height:1.25}.markdown-body h1 .octicon-link,.markdown-body h2 .octicon-link,.markdown-body h3 .octicon-link,.markdown-body h4 .octicon-link,.markdown-body h5 .octicon-link,.markdown-body h6 .octicon-link{color:#000;vertical-align:middle;visibility:hidden}.markdown-body h1:hover .anchor,.markdown-body h2:hover .anchor,.markdown-body h3:hover .anchor,.markdown-body h4:hover .anchor,.markdown-body h5:hover .anchor,.markdown-body h6:hover .anchor{text-decoration:none}.markdown-body h1:hover .anchor .octicon-link,.markdown-body h2:hover .anchor .octicon-link,.markdown-body h3:hover .anchor .octicon-link,.markdown-body h4:hover .anchor .octicon-link,.markdown-body h5:hover .anchor .octicon-link,.markdown-body h6:hover .anchor .octicon-link{visibility:visible}.markdown-body h1 code,.markdown-body h1 tt,.markdown-body h2 code,.markdown-body h2 tt,.markdown-body h3 code,.markdown-body h3 tt,.markdown-body h4 code,.markdown-body h4 tt,.markdown-body h5 code,.markdown-body h5 tt,.markdown-body h6 code,.markdown-body h6 tt{font-size:inherit}.markdown-body h1{font-size:2em}.markdown-body h1,.markdown-body h2{padding-bottom:.3em;border-bottom:1px solid #eee}.markdown-body h2{font-size:1.5em}.markdown-body h3{font-size:1.25em}.markdown-body h4{font-size:1em}.markdown-body h5{font-size:.875em}.markdown-body h6{font-size:.85em;color:#777}.markdown-body ol,.markdown-body ul{padding-left:2em}.markdown-body ol.no-list,.markdown-body ul.no-list{padding:0;list-style-type:none}.markdown-body ol ol,.markdown-body ol ul,.markdown-body ul ol,.markdown-body ul ul{margin-top:0;margin-bottom:0}.markdown-body li>p{margin-top:16px}.markdown-body li+li{padding-top:.25em}.markdown-body dl{padding:0}.markdown-body dl dt{padding:0;margin-top:16px;font-size:1em;font-style:italic;font-weight:700}.markdown-body dl dd{padding:0 16px;margin-bottom:16px}.markdown-body table{display:block;width:100%;overflow:auto;word-break:normal;word-break:keep-all}.markdown-body table th{font-weight:700}.markdown-body table td,.markdown-body table th{padding:6px 13px;border:1px solid #ddd}.markdown-body table tr{background-color:#fff;border-top:1px solid #ccc}.markdown-body table tr:nth-child(2n){background-color:#f8f8f8}.markdown-body img{max-width:100%;box-sizing:content-box;background-color:#fff}.markdown-body img[align=right]{padding-left:20px}.markdown-body img[align=left]{padding-right:20px}.markdown-body .emoji{max-width:none;vertical-align:text-top;background-color:transparent}.markdown-body span.frame{display:block;overflow:hidden}.markdown-body span.frame>span{display:block;float:left;width:auto;padding:7px;margin:13px 0 0;overflow:hidden;border:1px solid #ddd}.markdown-body span.frame span img{display:block;float:left}.markdown-body span.frame span span{display:block;padding:5px 0 0;clear:both;color:#333}.markdown-body span.align-center{display:block;overflow:hidden;clear:both}.markdown-body span.align-center>span{display:block;margin:13px auto 0;overflow:hidden;text-align:center}.markdown-body span.align-center span img{margin:0 auto;text-align:center}.markdown-body span.align-right{display:block;overflow:hidden;clear:both}.markdown-body span.align-right>span{display:block;margin:13px 0 0;overflow:hidden;text-align:right}.markdown-body span.align-right span img{margin:0;text-align:right}.markdown-body span.float-left{display:block;float:left;margin-right:13px;overflow:hidden}.markdown-body span.float-left span{margin:13px 0 0}.markdown-body span.float-right{display:block;float:right;margin-left:13px;overflow:hidden}.markdown-body span.float-right>span{display:block;margin:13px auto 0;overflow:hidden;text-align:right}.markdown-body code,.markdown-body tt{padding:0;padding-top:.2em;padding-bottom:.2em;margin:0;font-size:85%;background-color:rgba(0,0,0,.04);border-radius:3px}.markdown-body code:after,.markdown-body code:before,.markdown-body tt:after,.markdown-body tt:before{letter-spacing:-.2em;content:"\00a0"}.markdown-body code br,.markdown-body tt br{display:none}.markdown-body del code{text-decoration:inherit}.markdown-body pre{word-wrap:normal}.markdown-body pre>code{padding:0;margin:0;font-size:100%;word-break:normal;white-space:pre;background:transparent;border:0}.markdown-body .highlight{margin-bottom:16px}.markdown-body .highlight pre{margin-bottom:0;word-break:normal}.markdown-body .highlight pre,.markdown-body pre{padding:16px;overflow:auto;font-size:85%;line-height:1.45;background-color:#f7f7f7;border-radius:3px}.markdown-body pre code,.markdown-body pre tt{display:inline;max-width:auto;padding:0;margin:0;overflow:visible;line-height:inherit;word-wrap:normal;background-color:transparent;border:0}.markdown-body pre code:after,.markdown-body pre code:before,.markdown-body pre tt:after,.markdown-body pre tt:before{content:normal}.markdown-body .csv-data td,.markdown-body .csv-data th{padding:5px;overflow:hidden;font-size:12px;line-height:1;text-align:left;white-space:nowrap}.markdown-body .csv-data .blob-line-num{padding:10px 8px 9px;text-align:right;background:#fff;border:0}.markdown-body .csv-data tr{border-top:0}.markdown-body .csv-data th{font-weight:700;background:#f8f8f8;border-top:0}.news .alert .markdown-body blockquote{padding:0 0 0 40px;border:0 none}.activity-tab .news .alert .commits,.activity-tab .news .markdown-body blockquote{padding-left:0}.task-list-item{list-style-type:none}.task-list-item label{font-weight:400}.task-list-item.enabled label{cursor:pointer}.task-list-item+.task-list-item{margin-top:3px}.task-list-item-checkbox{float:left;margin:.31em 0 .2em -1.3em!important;vertical-align:middle;cursor:default!important}.markdown-body{padding-top:40px;padding-bottom:40px;max-width:758px;overflow:visible!important}.markdown-body .emoji{vertical-align:top}.markdown-body pre{border:inherit!important}.markdown-body code{color:inherit!important}.markdown-body pre code .wrapper{display:-moz-inline-flex;display:-ms-inline-flex;display:-o-inline-flex;display:inline-flex}.markdown-body pre code .gutter{float:left;overflow:hidden;-webkit-user-select:none;user-select:none}.markdown-body pre code .gutter.linenumber{text-align:right;position:relative;display:inline-block;cursor:default;z-index:4;padding:0 8px 0 0;min-width:20px;box-sizing:content-box;color:#afafaf!important;border-right:3px solid #6ce26c!important}.markdown-body pre code .gutter.linenumber>span:before{content:attr(data-linenumber)}.markdown-body pre code .code{float:left;margin:0 0 0 16px}.markdown-body .gist .line-numbers{border-left:none;border-top:none;border-bottom:none}.markdown-body .gist .line-data{border:none}.markdown-body .gist table{border-spacing:0;border-collapse:inherit!important}.markdown-body code[data-gist-id]{background:none;padding:0}.markdown-body code[data-gist-id]:after,.markdown-body code[data-gist-id]:before{content:""}.markdown-body code[data-gist-id] .blob-num{border:unset}.markdown-body code[data-gist-id] table{overflow:unset;margin-bottom:unset}.markdown-body code[data-gist-id] table tr{background:unset}.markdown-body[dir=rtl] pre{direction:ltr}.markdown-body[dir=rtl] code{direction:ltr;unicode-bidi:embed}.markdown-body .alert>p{margin-bottom:0}.markdown-body pre.abc,.markdown-body pre.flow-chart,.markdown-body pre.graphviz,.markdown-body pre.mermaid,.markdown-body pre.sequence-diagram,.markdown-body pre.vega{text-align:center;background-color:inherit;border-radius:0;white-space:inherit}.markdown-body pre.abc>code,.markdown-body pre.flow-chart>code,.markdown-body pre.graphviz>code,.markdown-body pre.mermaid>code,.markdown-body pre.sequence-diagram>code,.markdown-body pre.vega>code{text-align:left}.markdown-body pre.abc>svg,.markdown-body pre.flow-chart>svg,.markdown-body pre.graphviz>svg,.markdown-body pre.mermaid>svg,.markdown-body pre.sequence-diagram>svg,.markdown-body pre.vega>svg{max-width:100%;height:100%}.markdown-body pre>code.wrap{white-space:pre-wrap;white-space:-moz-pre-wrap;white-space:-pre-wrap;white-space:-o-pre-wrap;word-wrap:break-word}.markdown-body .alert>p,.markdown-body .alert>ul{margin-bottom:0}.markdown-body summary{display:list-item}.markdown-body summary:focus{outline:none}.markdown-body details summary{cursor:pointer}.markdown-body details:not([open])>:not(summary){display:none}.markdown-body figure{margin:1em 40px}.markdown-body .mark,.markdown-body mark{background-color:#fff1a7}.vimeo,.youtube{cursor:pointer;display:table;text-align:center;background-position:50%;background-repeat:no-repeat;background-size:contain;background-color:#000;overflow:hidden}.vimeo,.youtube{position:relative;width:100%}.youtube{padding-bottom:56.25%}.vimeo img{width:100%;object-fit:contain;z-index:0}.youtube img{object-fit:cover;z-index:0}.vimeo iframe,.youtube iframe,.youtube img{width:100%;height:100%;position:absolute;top:0;left:0}.vimeo iframe,.youtube iframe{vertical-align:middle;z-index:1}.vimeo .icon,.youtube .icon{position:absolute;height:auto;width:auto;top:50%;left:50%;transform:translate(-50%,-50%);color:#fff;opacity:.3;transition:opacity .2s;z-index:0}.vimeo:hover .icon,.youtube:hover .icon{opacity:.6;transition:opacity .2s}.slideshare .inner,.speakerdeck .inner{position:relative;width:100%}.slideshare .inner iframe,.speakerdeck .inner iframe{position:absolute;top:0;bottom:0;left:0;right:0;width:100%;height:100%}.MJX_Assistive_MathML{display:none}.ui-infobar{position:relative;z-index:2;max-width:760px;margin:25px auto -25px;padding:0 15px;color:#777}.toc .invisable-node{list-style-type:none}.ui-toc{position:fixed;bottom:20px;z-index:998}.ui-toc-label{opacity:.3;background-color:#ccc;border:none;transition:opacity .2s}.ui-toc .open .ui-toc-label{opacity:1;color:#fff;transition:opacity .2s}.ui-toc-label:focus{opacity:.3;background-color:#ccc;color:#000}.ui-toc-label:hover{opacity:1;background-color:#ccc;transition:opacity .2s}.ui-toc-dropdown{margin-top:23px;margin-bottom:20px;padding-left:10px;padding-right:10px;max-width:45vw;width:25vw;max-height:70vh;overflow:auto;text-align:inherit}.ui-toc-dropdown>.toc{max-height:calc(70vh - 100px);overflow:auto}.ui-toc-dropdown[dir=rtl] .nav{padding-right:0;letter-spacing:.0029em}.ui-toc-dropdown a{overflow:hidden;text-overflow:ellipsis;white-space:pre}.ui-toc-dropdown .nav>li>a{display:block;padding:4px 20px;font-size:13px;font-weight:500;color:#767676}.ui-toc-dropdown .nav>li:first-child:last-child > ul,.ui-toc-dropdown .toc.expand ul{display:block}.ui-toc-dropdown .nav>li>a:focus,.ui-toc-dropdown .nav>li>a:hover{padding-left:19px;color:#000;text-decoration:none;background-color:transparent;border-left:1px solid #000}.ui-toc-dropdown[dir=rtl] .nav>li>a:focus,.ui-toc-dropdown[dir=rtl] .nav>li>a:hover{padding-right:19px;border-left:none;border-right:1px solid #000}.ui-toc-dropdown .nav>.active:focus>a,.ui-toc-dropdown .nav>.active:hover>a,.ui-toc-dropdown .nav>.active>a{padding-left:18px;font-weight:700;color:#000;background-color:transparent;border-left:2px solid #000}.ui-toc-dropdown[dir=rtl] .nav>.active:focus>a,.ui-toc-dropdown[dir=rtl] .nav>.active:hover>a,.ui-toc-dropdown[dir=rtl] .nav>.active>a{padding-right:18px;border-left:none;border-right:2px solid #000}.ui-toc-dropdown .nav .nav{display:none;padding-bottom:10px}.ui-toc-dropdown .nav>.active>ul{display:block}.ui-toc-dropdown .nav .nav>li>a{padding-top:1px;padding-bottom:1px;padding-left:30px;font-size:12px;font-weight:400}.ui-toc-dropdown[dir=rtl] .nav .nav>li>a{padding-right:30px}.ui-toc-dropdown .nav .nav>li>ul>li>a{padding-top:1px;padding-bottom:1px;padding-left:40px;font-size:12px;font-weight:400}.ui-toc-dropdown[dir=rtl] .nav .nav>li>ul>li>a{padding-right:40px}.ui-toc-dropdown .nav .nav>li>a:focus,.ui-toc-dropdown .nav .nav>li>a:hover{padding-left:29px}.ui-toc-dropdown[dir=rtl] .nav .nav>li>a:focus,.ui-toc-dropdown[dir=rtl] .nav .nav>li>a:hover{padding-right:29px}.ui-toc-dropdown .nav .nav>li>ul>li>a:focus,.ui-toc-dropdown .nav .nav>li>ul>li>a:hover{padding-left:39px}.ui-toc-dropdown[dir=rtl] .nav .nav>li>ul>li>a:focus,.ui-toc-dropdown[dir=rtl] .nav .nav>li>ul>li>a:hover{padding-right:39px}.ui-toc-dropdown .nav .nav>.active:focus>a,.ui-toc-dropdown .nav .nav>.active:hover>a,.ui-toc-dropdown .nav .nav>.active>a{padding-left:28px;font-weight:500}.ui-toc-dropdown[dir=rtl] .nav .nav>.active:focus>a,.ui-toc-dropdown[dir=rtl] .nav .nav>.active:hover>a,.ui-toc-dropdown[dir=rtl] .nav .nav>.active>a{padding-right:28px}.ui-toc-dropdown .nav .nav>.active>.nav>.active:focus>a,.ui-toc-dropdown .nav .nav>.active>.nav>.active:hover>a,.ui-toc-dropdown .nav .nav>.active>.nav>.active>a{padding-left:38px;font-weight:500}.ui-toc-dropdown[dir=rtl] .nav .nav>.active>.nav>.active:focus>a,.ui-toc-dropdown[dir=rtl] .nav .nav>.active>.nav>.active:hover>a,.ui-toc-dropdown[dir=rtl] .nav .nav>.active>.nav>.active>a{padding-right:38px}.markdown-body{font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica Neue,Helvetica,Roboto,Arial,sans-serif}html[lang^=ja] .markdown-body{font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica Neue,Helvetica,Roboto,Arial,Hiragino Kaku Gothic Pro,ヒラギノ角ゴ Pro W3,Osaka,Meiryo,メイリオ,MS Gothic,ＭＳ\ ゴシック,sans-serif}html[lang=zh-tw] .markdown-body{font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica Neue,Helvetica,Roboto,Arial,PingFang TC,Microsoft JhengHei,微軟正黑,sans-serif}html[lang=zh-cn] .markdown-body{font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica Neue,Helvetica,Roboto,Arial,PingFang SC,Microsoft YaHei,微软雅黑,sans-serif}html .markdown-body[lang^=ja]{font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica Neue,Helvetica,Roboto,Arial,Hiragino Kaku Gothic Pro,ヒラギノ角ゴ Pro W3,Osaka,Meiryo,メイリオ,MS Gothic,ＭＳ\ ゴシック,sans-serif}html .markdown-body[lang=zh-tw]{font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica Neue,Helvetica,Roboto,Arial,PingFang TC,Microsoft JhengHei,微軟正黑,sans-serif}html .markdown-body[lang=zh-cn]{font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica Neue,Helvetica,Roboto,Arial,PingFang SC,Microsoft YaHei,微软雅黑,sans-serif}html[lang^=ja] .ui-toc-dropdown{font-family:Source Sans Pro,Helvetica,Arial,Meiryo UI,MS PGothic,ＭＳ\ Ｐゴシック,sans-serif}html[lang=zh-tw] .ui-toc-dropdown{font-family:Source Sans Pro,Helvetica,Arial,Microsoft JhengHei UI,微軟正黑UI,sans-serif}html[lang=zh-cn] .ui-toc-dropdown{font-family:Source Sans Pro,Helvetica,Arial,Microsoft YaHei UI,微软雅黑UI,sans-serif}html .ui-toc-dropdown[lang^=ja]{font-family:Source Sans Pro,Helvetica,Arial,Meiryo UI,MS PGothic,ＭＳ\ Ｐゴシック,sans-serif}html .ui-toc-dropdown[lang=zh-tw]{font-family:Source Sans Pro,Helvetica,Arial,Microsoft JhengHei UI,微軟正黑UI,sans-serif}html .ui-toc-dropdown[lang=zh-cn]{font-family:Source Sans Pro,Helvetica,Arial,Microsoft YaHei UI,微软雅黑UI,sans-serif}.ui-affix-toc{position:fixed;top:0;max-width:15vw;max-height:70vh;overflow:auto}.back-to-top,.expand-toggle,.go-to-bottom{display:block;padding:4px 10px;margin-top:10px;margin-left:10px;font-size:12px;font-weight:500;color:#999}.back-to-top:focus,.back-to-top:hover,.expand-toggle:focus,.expand-toggle:hover,.go-to-bottom:focus,.go-to-bottom:hover{color:#563d7c;text-decoration:none}.back-to-top,.go-to-bottom{margin-top:0}.ui-user-icon{width:20px;height:20px;display:block;border-radius:3px;margin-top:2px;margin-bottom:2px;margin-right:5px;background-position:50%;background-repeat:no-repeat;background-size:cover}.ui-user-icon.small{width:18px;height:18px;display:inline-block;vertical-align:middle;margin:0 0 .2em}.ui-infobar>small>span{line-height:22px}.ui-infobar>small .dropdown{display:inline-block}.ui-infobar>small .dropdown a:focus,.ui-infobar>small .dropdown a:hover{text-decoration:none}.ui-published-note{color:#337ab7}.ui-published-note .fa{font-size:20px;vertical-align:top}.unselectable{-webkit-user-select:none;-o-user-select:none;user-select:none}@media print{blockquote,div,img,pre,table{page-break-inside:avoid!important}a[href]:after{font-size:12px!important}}.markdown-body.slides{position:relative;z-index:1;color:#222}.markdown-body.slides:before{content:"";display:block;position:absolute;top:0;left:0;right:0;bottom:0;z-index:-1;background-color:currentColor;box-shadow:0 0 0 50vw}.markdown-body.slides section[data-markdown]{position:relative;margin-bottom:1.5em;background-color:#fff;text-align:center}.markdown-body.slides section[data-markdown] code{text-align:left}.markdown-body.slides section[data-markdown]:before{content:"";display:block;padding-bottom:56.23%}.markdown-body.slides section[data-markdown]>div:first-child{position:absolute;top:50%;left:1em;right:1em;transform:translateY(-50%);max-height:100%;overflow:hidden}.markdown-body.slides section[data-markdown]>ul{display:inline-block}.markdown-body.slides>section>section+section:after{content:"";position:absolute;top:-1.5em;right:1em;height:1.5em;border:3px solid #777}body{font-smoothing:subpixel-antialiased!important;-webkit-font-smoothing:subpixel-antialiased!important;-moz-osx-font-smoothing:auto!important;text-shadow:0 0 1em transparent,1px 1px 1.2px rgba(0,0,0,.004);-webkit-overflow-scrolling:touch;letter-spacing:.025em}.focus,:focus{outline:none!important}::-moz-focus-inner{border:0!important}body{font-family:Source Sans Pro,Helvetica,Arial,sans-serif}html[lang^=ja] body{font-family:Source Sans Pro,Helvetica,Arial,Hiragino Kaku Gothic Pro,ヒラギノ角ゴ Pro W3,Osaka,Meiryo,メイリオ,MS Gothic,ＭＳ\ ゴシック,sans-serif}html[lang=zh-tw] body{font-family:Source Sans Pro,Helvetica,Arial,PingFang TC,Microsoft JhengHei,微軟正黑,sans-serif}html[lang=zh-cn] body{font-family:Source Sans Pro,Helvetica,Arial,PingFang SC,Microsoft YaHei,微软雅黑,sans-serif}abbr[title]{border-bottom:none;text-decoration:underline;-webkit-text-decoration:underline dotted;text-decoration:underline dotted}abbr[data-original-title],abbr[title]{cursor:help}body.modal-open{overflow-y:auto;padding-right:0!important}
+    </style>
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    	<script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.min.js" integrity="sha256-3Jy/GbSLrg0o9y5Z5n1uw0qxZECH7C6OQpVBgNFYa0g=" crossorigin="anonymous"></script>
+    	<script src="https://cdnjs.cloudflare.com/ajax/libs/respond.js/1.4.2/respond.min.js" integrity="sha256-g6iAfvZp+nDQ2TdTR/VVKJf3bGro4ub5fvWSWVRi2NE=" crossorigin="anonymous"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/es5-shim/4.5.9/es5-shim.min.js" integrity="sha256-8E4Is26QH0bD52WoQpcB+R/tcWQtpzlCojrybUd7Mxo=" crossorigin="anonymous"></script>
+    <![endif]-->
+</head>
+
+<body>
+    <div id="doc" class="markdown-body container-fluid comment-enabled" data-hard-breaks="true" style="position: relative;"><h1 id="Solving-the-Halite-Challenge-with-a-Deep-Q-Network"><a class="anchor hidden-xs" href="#Solving-the-Halite-Challenge-with-a-Deep-Q-Network" title="Solving-the-Halite-Challenge-with-a-Deep-Q-Network"><span class="octicon octicon-link"></span></a>Solving the Halite Challenge with a Deep-Q Network</h1><h2 id="Introduction"><a class="anchor hidden-xs" href="#Introduction" title="Introduction"><span class="octicon octicon-link"></span></a>Introduction</h2><p>For our final project in the course “Implementing ANNs with TensorFlow” we decided to revive a challenge posed by TWO SIGMA in 2016. The challenge consisted of the game “<a href="https://2016.halite.io/index.html" target="_blank" rel="noopener">Halite</a>”, a game specifically made to be played by bots. The competition then started in November 2016 and finalized 3 month later, in February 2017. The sent in solutions were mostly traditional “old-fashioned” AI programs using rule sets and search algorithms. However, also some Machine Learning based bots participated with some success. In our growing interest in self learning systems we set out to try to challenge the competition with an ANN based bot, or at the very least learn basic tactics of the game through reinforcement learning. In this report we will show our different approaches, our successful as well as our not so successful ones.</p><h3 id="The-Rules"><a class="anchor hidden-xs" href="#The-Rules" title="The-Rules"><span class="octicon octicon-link"></span></a>The Rules</h3><p>Halite is played on a rectangular, toroidal grid, where the size correlates with the number of players (2-6). Each player starts on a specific tile of the grid, all other tiles are considered unowned. The starting situation is symmetric, i.e. no player has an advantage at the start. Tiles come in different qualities. A tile produces one drone per turn with the <em>strength</em> of its <em>production</em> value. Drones have the ability to move one step in a cardinal direction or to stay still at their momentary tile. Turns happen simultaneously, similar to the game <em>Diplomacy</em>. If a drone chooses to remain in place, its strength grows by the production value of the tile it is on. If two or more allied drones move onto the same tile, they merge into a single, stronger drone with the combined strength value. Strength is <em>capped</em> at 255. If a drone moves onto or next to a tile not currently owned by the player, a fight ensues. The strength of participating parties get subtracted, and the winner gains control of the tile. For a more precise statement of the fighting rules, please see the official <a href="https://2016.halite.io/rules_game.html" target="_blank" rel="noopener">Halite rules</a>. The goal is to seize control of the entire grid, or if that fails to control the most territory after a predefined number of turns.</p><p><a href="https://2016.halite.io/game.html?replay=ar1487297318-1684222918.hlt" target="_blank" rel="noopener">Replay of a game of Halite played by some of the top bots</a></p><p>Use arrow keys and space bar to control the flow of the replay</p><iframe src="https://2016.halite.io/game.html?replay=ar1487297318-1684222918.hlt" width="800" height="600">
+</iframe><h2 id="Background"><a class="anchor hidden-xs" href="#Background" title="Background"><span class="octicon octicon-link"></span></a>Background</h2><p>We decided to take the classic approach of Deep Q Learning as first presented in the paper by <em>DeepMind</em>, <em><a href="https://arxiv.org/abs/1312.5602" target="_blank" rel="noopener">Playing Atari games with Deep Reinforcement Learning</a></em>.</p><p>In their paper, Mnih et al. used a Deep-Q neural network to play different Atari games like: Pong, Breakout, Space Invaders, Seaquest and Beam Rider, using an almost raw video feed from the screen as input. The agent was able to learn to play these games despite the huge state space, which we thought was a good feature to have for playing halite. The results they got were more than okay. In six of the seven tried games they outperformed other bot approaches. Even though Humans still played better (except for Seaquest). But what is a DQN?</p><h3 id="What-is-a-Deep-Q-network-DQN"><a class="anchor hidden-xs" href="#What-is-a-Deep-Q-network-DQN" title="What-is-a-Deep-Q-network-DQN"><span class="octicon octicon-link"></span></a>What is a Deep-Q network (DQN)?</h3><p>A DQN is a deep neural network used in a Q learning agent to approximate its Q function.</p><p><span class="mathjax"><span class="MathJax_Preview" style="color: inherit;"></span><span id="MathJax-Element-882-Frame" class="mjx-chtml MathJax_CHTML" tabindex="0" data-mathml="<math xmlns=&quot;http://www.w3.org/1998/Math/MathML&quot;><mi>Q</mi><mo stretchy=&quot;false&quot;>(</mo><mi>s</mi><mo>,</mo><mi>a</mi><mo stretchy=&quot;false&quot;>)</mo></math>" role="presentation" style="font-size: 113%; position: relative;"><span id="MJXc-Node-773" class="mjx-math" aria-hidden="true"><span id="MJXc-Node-774" class="mjx-mrow"><span id="MJXc-Node-775" class="mjx-mi"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.501em; padding-bottom: 0.445em;">Q</span></span><span id="MJXc-Node-776" class="mjx-mo"><span class="mjx-char MJXc-TeX-main-R" style="padding-top: 0.445em; padding-bottom: 0.611em;">(</span></span><span id="MJXc-Node-777" class="mjx-mi"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.224em; padding-bottom: 0.279em;">s</span></span><span id="MJXc-Node-778" class="mjx-mo"><span class="mjx-char MJXc-TeX-main-R" style="margin-top: -0.163em; padding-bottom: 0.556em;">,</span></span><span id="MJXc-Node-779" class="mjx-mi MJXc-space1"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.224em; padding-bottom: 0.279em;">a</span></span><span id="MJXc-Node-780" class="mjx-mo"><span class="mjx-char MJXc-TeX-main-R" style="padding-top: 0.445em; padding-bottom: 0.611em;">)</span></span></span></span><span class="MJX_Assistive_MathML" role="presentation"><math xmlns="http://www.w3.org/1998/Math/MathML"><mi>Q</mi><mo stretchy="false">(</mo><mi>s</mi><mo>,</mo><mi>a</mi><mo stretchy="false">)</mo></math></span></span><script type="math/tex" id="MathJax-Element-882">Q(s, a)</script></span> tells the agent what <em>expected cumulative future reward</em> it will get by performing action <span class="mathjax"><span class="MathJax_Preview" style="color: inherit;"></span><span id="MathJax-Element-883-Frame" class="mjx-chtml MathJax_CHTML" tabindex="0" data-mathml="<math xmlns=&quot;http://www.w3.org/1998/Math/MathML&quot;><mi>a</mi></math>" role="presentation" style="font-size: 113%; position: relative;"><span id="MJXc-Node-781" class="mjx-math" aria-hidden="true"><span id="MJXc-Node-782" class="mjx-mrow"><span id="MJXc-Node-783" class="mjx-mi"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.224em; padding-bottom: 0.279em;">a</span></span></span></span><span class="MJX_Assistive_MathML" role="presentation"><math xmlns="http://www.w3.org/1998/Math/MathML"><mi>a</mi></math></span></span><script type="math/tex" id="MathJax-Element-883">a</script></span> in state <span class="mathjax"><span class="MathJax_Preview" style="color: inherit;"></span><span id="MathJax-Element-884-Frame" class="mjx-chtml MathJax_CHTML" tabindex="0" data-mathml="<math xmlns=&quot;http://www.w3.org/1998/Math/MathML&quot;><mi>s</mi></math>" role="presentation" style="font-size: 113%; position: relative;"><span id="MJXc-Node-784" class="mjx-math" aria-hidden="true"><span id="MJXc-Node-785" class="mjx-mrow"><span id="MJXc-Node-786" class="mjx-mi"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.224em; padding-bottom: 0.279em;">s</span></span></span></span><span class="MJX_Assistive_MathML" role="presentation"><math xmlns="http://www.w3.org/1998/Math/MathML"><mi>s</mi></math></span></span><script type="math/tex" id="MathJax-Element-884">s</script></span>. In regular Q learning, the agent will first perform more or less random actions and receive a certain reward for that. After performing an action, it immediately updates the corresponding <span class="mathjax"><span class="MathJax_Preview" style="color: inherit;"></span><span id="MathJax-Element-885-Frame" class="mjx-chtml MathJax_CHTML" tabindex="0" data-mathml="<math xmlns=&quot;http://www.w3.org/1998/Math/MathML&quot;><mi>Q</mi><mo stretchy=&quot;false&quot;>(</mo><mi>s</mi><mo>,</mo><mi>a</mi><mo stretchy=&quot;false&quot;>)</mo></math>" role="presentation" style="font-size: 113%; position: relative;"><span id="MJXc-Node-787" class="mjx-math" aria-hidden="true"><span id="MJXc-Node-788" class="mjx-mrow"><span id="MJXc-Node-789" class="mjx-mi"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.501em; padding-bottom: 0.445em;">Q</span></span><span id="MJXc-Node-790" class="mjx-mo"><span class="mjx-char MJXc-TeX-main-R" style="padding-top: 0.445em; padding-bottom: 0.611em;">(</span></span><span id="MJXc-Node-791" class="mjx-mi"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.224em; padding-bottom: 0.279em;">s</span></span><span id="MJXc-Node-792" class="mjx-mo"><span class="mjx-char MJXc-TeX-main-R" style="margin-top: -0.163em; padding-bottom: 0.556em;">,</span></span><span id="MJXc-Node-793" class="mjx-mi MJXc-space1"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.224em; padding-bottom: 0.279em;">a</span></span><span id="MJXc-Node-794" class="mjx-mo"><span class="mjx-char MJXc-TeX-main-R" style="padding-top: 0.445em; padding-bottom: 0.611em;">)</span></span></span></span><span class="MJX_Assistive_MathML" role="presentation"><math xmlns="http://www.w3.org/1998/Math/MathML"><mi>Q</mi><mo stretchy="false">(</mo><mi>s</mi><mo>,</mo><mi>a</mi><mo stretchy="false">)</mo></math></span></span><script type="math/tex" id="MathJax-Element-885">Q(s, a)</script></span> entry in its <em>Q table</em> according to the following formula:</p><p><span class="mathjax"><span class="MathJax_Preview" style="color: inherit;"></span><span class="mjx-chtml MJXc-display" style="text-align: center;"><span id="MathJax-Element-886-Frame" class="mjx-chtml MathJax_CHTML" tabindex="0" data-mathml="<math xmlns=&quot;http://www.w3.org/1998/Math/MathML&quot; display=&quot;block&quot;><mi>Q</mi><mo stretchy=&quot;false&quot;>(</mo><mi>s</mi><mo>,</mo><mi>a</mi><mo stretchy=&quot;false&quot;>)</mo><mo stretchy=&quot;false&quot;>&amp;#x2190;</mo><mi>r</mi><mo stretchy=&quot;false&quot;>(</mo><mi>s</mi><mo>,</mo><mi>a</mi><mo stretchy=&quot;false&quot;>)</mo><mo>+</mo><mi>&amp;#x03B3;</mi><mspace width=&quot;thickmathspace&quot; /><mi>Q</mi><mo stretchy=&quot;false&quot;>(</mo><msup><mi>s</mi><mo>&amp;#x2032;</mo></msup><mo>,</mo><mi>a</mi><mo stretchy=&quot;false&quot;>)</mo></math>" role="presentation" style="font-size: 113%; text-align: center; position: relative;"><span id="MJXc-Node-795" class="mjx-math" aria-hidden="true"><span id="MJXc-Node-796" class="mjx-mrow"><span id="MJXc-Node-797" class="mjx-mi"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.501em; padding-bottom: 0.445em;">Q</span></span><span id="MJXc-Node-798" class="mjx-mo"><span class="mjx-char MJXc-TeX-main-R" style="padding-top: 0.445em; padding-bottom: 0.611em;">(</span></span><span id="MJXc-Node-799" class="mjx-mi"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.224em; padding-bottom: 0.279em;">s</span></span><span id="MJXc-Node-800" class="mjx-mo"><span class="mjx-char MJXc-TeX-main-R" style="margin-top: -0.163em; padding-bottom: 0.556em;">,</span></span><span id="MJXc-Node-801" class="mjx-mi MJXc-space1"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.224em; padding-bottom: 0.279em;">a</span></span><span id="MJXc-Node-802" class="mjx-mo"><span class="mjx-char MJXc-TeX-main-R" style="padding-top: 0.445em; padding-bottom: 0.611em;">)</span></span><span id="MJXc-Node-803" class="mjx-mo MJXc-space3"><span class="mjx-char MJXc-TeX-main-R" style="padding-top: 0.224em; padding-bottom: 0.335em;">←</span></span><span id="MJXc-Node-804" class="mjx-mi MJXc-space3"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.224em; padding-bottom: 0.279em;">r</span></span><span id="MJXc-Node-805" class="mjx-mo"><span class="mjx-char MJXc-TeX-main-R" style="padding-top: 0.445em; padding-bottom: 0.611em;">(</span></span><span id="MJXc-Node-806" class="mjx-mi"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.224em; padding-bottom: 0.279em;">s</span></span><span id="MJXc-Node-807" class="mjx-mo"><span class="mjx-char MJXc-TeX-main-R" style="margin-top: -0.163em; padding-bottom: 0.556em;">,</span></span><span id="MJXc-Node-808" class="mjx-mi MJXc-space1"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.224em; padding-bottom: 0.279em;">a</span></span><span id="MJXc-Node-809" class="mjx-mo"><span class="mjx-char MJXc-TeX-main-R" style="padding-top: 0.445em; padding-bottom: 0.611em;">)</span></span><span id="MJXc-Node-810" class="mjx-mo MJXc-space2"><span class="mjx-char MJXc-TeX-main-R" style="padding-top: 0.279em; padding-bottom: 0.445em;">+</span></span><span id="MJXc-Node-811" class="mjx-mi MJXc-space2"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.224em; padding-bottom: 0.501em; padding-right: 0.025em;">γ</span></span><span id="MJXc-Node-812" class="mjx-mspace" style="width: 0.278em; height: 0px;"></span><span id="MJXc-Node-813" class="mjx-mi"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.501em; padding-bottom: 0.445em;">Q</span></span><span id="MJXc-Node-814" class="mjx-mo"><span class="mjx-char MJXc-TeX-main-R" style="padding-top: 0.445em; padding-bottom: 0.611em;">(</span></span><span id="MJXc-Node-815" class="mjx-msup"><span class="mjx-base"><span id="MJXc-Node-816" class="mjx-mi"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.224em; padding-bottom: 0.279em;">s</span></span></span><span class="mjx-sup" style="font-size: 70.7%; vertical-align: 0.584em; padding-left: 0px; padding-right: 0.071em;"><span id="MJXc-Node-817" class="mjx-mo" style=""><span class="mjx-char MJXc-TeX-main-R" style="padding-top: 0.279em; padding-bottom: 0.335em;">′</span></span></span></span><span id="MJXc-Node-818" class="mjx-mo"><span class="mjx-char MJXc-TeX-main-R" style="margin-top: -0.163em; padding-bottom: 0.556em;">,</span></span><span id="MJXc-Node-819" class="mjx-mi MJXc-space1"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.224em; padding-bottom: 0.279em;">a</span></span><span id="MJXc-Node-820" class="mjx-mo"><span class="mjx-char MJXc-TeX-main-R" style="padding-top: 0.445em; padding-bottom: 0.611em;">)</span></span></span></span><span class="MJX_Assistive_MathML MJX_Assistive_MathML_Block" role="presentation"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mi>Q</mi><mo stretchy="false">(</mo><mi>s</mi><mo>,</mo><mi>a</mi><mo stretchy="false">)</mo><mo stretchy="false">←</mo><mi>r</mi><mo stretchy="false">(</mo><mi>s</mi><mo>,</mo><mi>a</mi><mo stretchy="false">)</mo><mo>+</mo><mi>γ</mi><mspace width="thickmathspace"></mspace><mi>Q</mi><mo stretchy="false">(</mo><msup><mi>s</mi><mo>′</mo></msup><mo>,</mo><mi>a</mi><mo stretchy="false">)</mo></math></span></span></span><script type="math/tex; mode=display" id="MathJax-Element-886"> Q(s, a) \leftarrow r(s, a) + \gamma \; Q(s', a) </script></span></p><p>where <span class="mathjax"><span class="MathJax_Preview" style="color: inherit;"></span><span id="MathJax-Element-887-Frame" class="mjx-chtml MathJax_CHTML" tabindex="0" data-mathml="<math xmlns=&quot;http://www.w3.org/1998/Math/MathML&quot;><mi>r</mi><mo stretchy=&quot;false&quot;>(</mo><mi>s</mi><mo>,</mo><mi>a</mi><mo stretchy=&quot;false&quot;>)</mo></math>" role="presentation" style="font-size: 113%; position: relative;"><span id="MJXc-Node-821" class="mjx-math" aria-hidden="true"><span id="MJXc-Node-822" class="mjx-mrow"><span id="MJXc-Node-823" class="mjx-mi"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.224em; padding-bottom: 0.279em;">r</span></span><span id="MJXc-Node-824" class="mjx-mo"><span class="mjx-char MJXc-TeX-main-R" style="padding-top: 0.445em; padding-bottom: 0.611em;">(</span></span><span id="MJXc-Node-825" class="mjx-mi"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.224em; padding-bottom: 0.279em;">s</span></span><span id="MJXc-Node-826" class="mjx-mo"><span class="mjx-char MJXc-TeX-main-R" style="margin-top: -0.163em; padding-bottom: 0.556em;">,</span></span><span id="MJXc-Node-827" class="mjx-mi MJXc-space1"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.224em; padding-bottom: 0.279em;">a</span></span><span id="MJXc-Node-828" class="mjx-mo"><span class="mjx-char MJXc-TeX-main-R" style="padding-top: 0.445em; padding-bottom: 0.611em;">)</span></span></span></span><span class="MJX_Assistive_MathML" role="presentation"><math xmlns="http://www.w3.org/1998/Math/MathML"><mi>r</mi><mo stretchy="false">(</mo><mi>s</mi><mo>,</mo><mi>a</mi><mo stretchy="false">)</mo></math></span></span><script type="math/tex" id="MathJax-Element-887">r(s, a)</script></span> is the <em>immediate reward</em> given by the environment and <span class="mathjax"><span class="MathJax_Preview" style="color: inherit;"></span><span id="MathJax-Element-888-Frame" class="mjx-chtml MathJax_CHTML" tabindex="0" data-mathml="<math xmlns=&quot;http://www.w3.org/1998/Math/MathML&quot;><mi>&amp;#x03B3;</mi><mspace width=&quot;thickmathspace&quot; /><mi>Q</mi><mo stretchy=&quot;false&quot;>(</mo><msup><mi>s</mi><mo>&amp;#x2032;</mo></msup><mo>,</mo><mi>a</mi><mo stretchy=&quot;false&quot;>)</mo></math>" role="presentation" style="font-size: 113%; position: relative;"><span id="MJXc-Node-829" class="mjx-math" aria-hidden="true"><span id="MJXc-Node-830" class="mjx-mrow"><span id="MJXc-Node-831" class="mjx-mi"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.224em; padding-bottom: 0.501em; padding-right: 0.025em;">γ</span></span><span id="MJXc-Node-832" class="mjx-mspace" style="width: 0.278em; height: 0px;"></span><span id="MJXc-Node-833" class="mjx-mi"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.501em; padding-bottom: 0.445em;">Q</span></span><span id="MJXc-Node-834" class="mjx-mo"><span class="mjx-char MJXc-TeX-main-R" style="padding-top: 0.445em; padding-bottom: 0.611em;">(</span></span><span id="MJXc-Node-835" class="mjx-msup"><span class="mjx-base"><span id="MJXc-Node-836" class="mjx-mi"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.224em; padding-bottom: 0.279em;">s</span></span></span><span class="mjx-sup" style="font-size: 70.7%; vertical-align: 0.513em; padding-left: 0px; padding-right: 0.071em;"><span id="MJXc-Node-837" class="mjx-mo" style=""><span class="mjx-char MJXc-TeX-main-R" style="padding-top: 0.279em; padding-bottom: 0.335em;">′</span></span></span></span><span id="MJXc-Node-838" class="mjx-mo"><span class="mjx-char MJXc-TeX-main-R" style="margin-top: -0.163em; padding-bottom: 0.556em;">,</span></span><span id="MJXc-Node-839" class="mjx-mi MJXc-space1"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.224em; padding-bottom: 0.279em;">a</span></span><span id="MJXc-Node-840" class="mjx-mo"><span class="mjx-char MJXc-TeX-main-R" style="padding-top: 0.445em; padding-bottom: 0.611em;">)</span></span></span></span><span class="MJX_Assistive_MathML" role="presentation"><math xmlns="http://www.w3.org/1998/Math/MathML"><mi>γ</mi><mspace width="thickmathspace"></mspace><mi>Q</mi><mo stretchy="false">(</mo><msup><mi>s</mi><mo>′</mo></msup><mo>,</mo><mi>a</mi><mo stretchy="false">)</mo></math></span></span><script type="math/tex" id="MathJax-Element-888">\gamma \; Q(s', a)</script></span> is the discounted expected future reward.</p><p>The problem with using a <em>table</em> for the Q function is however that the state space can potentially be huge, making only ever updating single values impractical. The solution is of course to use a neural network as a function approximator instead, but this adds another level of complexity: We cannot just <em>make</em> a neural network output a desired value, it has to be trained.</p><p>To weave the training process into the reinforcement learning loop, enter the <em>replay buffer</em>. Instead of updating the Q function directly after taking an action, a <span class="mathjax"><span class="MathJax_Preview" style="color: inherit;"></span><span id="MathJax-Element-889-Frame" class="mjx-chtml MathJax_CHTML" tabindex="0" data-mathml="<math xmlns=&quot;http://www.w3.org/1998/Math/MathML&quot;><mo stretchy=&quot;false&quot;>(</mo><mi>s</mi><mi>t</mi><mi>a</mi><mi>t</mi><mi>e</mi><mo>,</mo><mspace width=&quot;thickmathspace&quot; /><mi>a</mi><mi>c</mi><mi>t</mi><mi>i</mi><mi>o</mi><mi>n</mi><mo>,</mo><mspace width=&quot;thickmathspace&quot; /><mi>r</mi><mi>e</mi><mi>w</mi><mi>a</mi><mi>r</mi><mi>d</mi><mo>,</mo><mspace width=&quot;thickmathspace&quot; /><mi>s</mi><mi>t</mi><mi>a</mi><mi>t</mi><msup><mi>e</mi><mo>&amp;#x2032;</mo></msup><mo stretchy=&quot;false&quot;>)</mo></math>" role="presentation" style="font-size: 113%; position: relative;"><span id="MJXc-Node-841" class="mjx-math" aria-hidden="true"><span id="MJXc-Node-842" class="mjx-mrow"><span id="MJXc-Node-843" class="mjx-mo"><span class="mjx-char MJXc-TeX-main-R" style="padding-top: 0.445em; padding-bottom: 0.611em;">(</span></span><span id="MJXc-Node-844" class="mjx-mi"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.224em; padding-bottom: 0.279em;">s</span></span><span id="MJXc-Node-845" class="mjx-mi"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.39em; padding-bottom: 0.279em;">t</span></span><span id="MJXc-Node-846" class="mjx-mi"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.224em; padding-bottom: 0.279em;">a</span></span><span id="MJXc-Node-847" class="mjx-mi"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.39em; padding-bottom: 0.279em;">t</span></span><span id="MJXc-Node-848" class="mjx-mi"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.224em; padding-bottom: 0.279em;">e</span></span><span id="MJXc-Node-849" class="mjx-mo"><span class="mjx-char MJXc-TeX-main-R" style="margin-top: -0.163em; padding-bottom: 0.556em;">,</span></span><span id="MJXc-Node-850" class="mjx-mspace" style="width: 0.278em; height: 0px;"></span><span id="MJXc-Node-851" class="mjx-mi MJXc-space1"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.224em; padding-bottom: 0.279em;">a</span></span><span id="MJXc-Node-852" class="mjx-mi"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.224em; padding-bottom: 0.279em;">c</span></span><span id="MJXc-Node-853" class="mjx-mi"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.39em; padding-bottom: 0.279em;">t</span></span><span id="MJXc-Node-854" class="mjx-mi"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.445em; padding-bottom: 0.279em;">i</span></span><span id="MJXc-Node-855" class="mjx-mi"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.224em; padding-bottom: 0.279em;">o</span></span><span id="MJXc-Node-856" class="mjx-mi"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.224em; padding-bottom: 0.279em;">n</span></span><span id="MJXc-Node-857" class="mjx-mo"><span class="mjx-char MJXc-TeX-main-R" style="margin-top: -0.163em; padding-bottom: 0.556em;">,</span></span><span id="MJXc-Node-858" class="mjx-mspace" style="width: 0.278em; height: 0px;"></span><span id="MJXc-Node-859" class="mjx-mi MJXc-space1"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.224em; padding-bottom: 0.279em;">r</span></span><span id="MJXc-Node-860" class="mjx-mi"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.224em; padding-bottom: 0.279em;">e</span></span><span id="MJXc-Node-861" class="mjx-mi"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.224em; padding-bottom: 0.279em;">w</span></span><span id="MJXc-Node-862" class="mjx-mi"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.224em; padding-bottom: 0.279em;">a</span></span><span id="MJXc-Node-863" class="mjx-mi"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.224em; padding-bottom: 0.279em;">r</span></span><span id="MJXc-Node-864" class="mjx-mi"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.445em; padding-bottom: 0.279em; padding-right: 0.003em;">d</span></span><span id="MJXc-Node-865" class="mjx-mo"><span class="mjx-char MJXc-TeX-main-R" style="margin-top: -0.163em; padding-bottom: 0.556em;">,</span></span><span id="MJXc-Node-866" class="mjx-mspace" style="width: 0.278em; height: 0px;"></span><span id="MJXc-Node-867" class="mjx-mi MJXc-space1"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.224em; padding-bottom: 0.279em;">s</span></span><span id="MJXc-Node-868" class="mjx-mi"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.39em; padding-bottom: 0.279em;">t</span></span><span id="MJXc-Node-869" class="mjx-mi"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.224em; padding-bottom: 0.279em;">a</span></span><span id="MJXc-Node-870" class="mjx-mi"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.39em; padding-bottom: 0.279em;">t</span></span><span id="MJXc-Node-871" class="mjx-msup"><span class="mjx-base"><span id="MJXc-Node-872" class="mjx-mi"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.224em; padding-bottom: 0.279em;">e</span></span></span><span class="mjx-sup" style="font-size: 70.7%; vertical-align: 0.513em; padding-left: 0px; padding-right: 0.071em;"><span id="MJXc-Node-873" class="mjx-mo" style=""><span class="mjx-char MJXc-TeX-main-R" style="padding-top: 0.279em; padding-bottom: 0.335em;">′</span></span></span></span><span id="MJXc-Node-874" class="mjx-mo"><span class="mjx-char MJXc-TeX-main-R" style="padding-top: 0.445em; padding-bottom: 0.611em;">)</span></span></span></span><span class="MJX_Assistive_MathML" role="presentation"><math xmlns="http://www.w3.org/1998/Math/MathML"><mo stretchy="false">(</mo><mi>s</mi><mi>t</mi><mi>a</mi><mi>t</mi><mi>e</mi><mo>,</mo><mspace width="thickmathspace"></mspace><mi>a</mi><mi>c</mi><mi>t</mi><mi>i</mi><mi>o</mi><mi>n</mi><mo>,</mo><mspace width="thickmathspace"></mspace><mi>r</mi><mi>e</mi><mi>w</mi><mi>a</mi><mi>r</mi><mi>d</mi><mo>,</mo><mspace width="thickmathspace"></mspace><mi>s</mi><mi>t</mi><mi>a</mi><mi>t</mi><msup><mi>e</mi><mo>′</mo></msup><mo stretchy="false">)</mo></math></span></span><script type="math/tex" id="MathJax-Element-889">(state, \;action, \;reward, \;state')</script></span> tuple memorized in a large buffer. Then, after each RL training step a random mini-batch of experiences is drawn from the buffer and a single network optimization step is performed, using standard techniques like Adam or SGD.</p><p>What is left to discuss is how the agent selects which actions to take, as there is a tradeoff to make: Always performing random actions makes it incredibly unlikely to get to advanced states in the environment, for which then nothing will be learned. On the other hand, always performing the action the agent thinks is best in a given state has the potential to get it stuck in a local optimum while interesting strategies may remain untried. The solution is to a parameter <span class="mathjax"><span class="MathJax_Preview" style="color: inherit;"></span><span id="MathJax-Element-890-Frame" class="mjx-chtml MathJax_CHTML" tabindex="0" data-mathml="<math xmlns=&quot;http://www.w3.org/1998/Math/MathML&quot;><mi>&amp;#x03F5;</mi></math>" role="presentation" style="font-size: 113%; position: relative;"><span id="MJXc-Node-875" class="mjx-math" aria-hidden="true"><span id="MJXc-Node-876" class="mjx-mrow"><span id="MJXc-Node-877" class="mjx-mi"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.224em; padding-bottom: 0.279em;">ϵ</span></span></span></span><span class="MJX_Assistive_MathML" role="presentation"><math xmlns="http://www.w3.org/1998/Math/MathML"><mi>ϵ</mi></math></span></span><script type="math/tex" id="MathJax-Element-890">\epsilon</script></span> that determines the “greediness” of the agent. Usually, it will decay over time but will never get too close to 0 either.</p><h2 id="Our-Approach"><a class="anchor hidden-xs" href="#Our-Approach" title="Our-Approach"><span class="octicon octicon-link"></span></a>Our Approach</h2><p>While DQN solves the problem of the large state space, Halite also has a huge action space (5 actions per drone for potentially hundreds of drones). To work around this issue, we chose to make the simplifying assumption that the drones can make good decisions independent of one another. With that, we can have a <em>state</em> be a window centered around the drone that is making a decision. Consequently, for a full <em>turn</em> we need to evaluate the network once for each drone, and we also get one <span class="mathjax"><span class="MathJax_Preview" style="color: inherit;"></span><span id="MathJax-Element-962-Frame" class="mjx-chtml MathJax_CHTML" tabindex="0" data-mathml="<math xmlns=&quot;http://www.w3.org/1998/Math/MathML&quot;><mo stretchy=&quot;false&quot;>(</mo><mi>s</mi><mo>,</mo><mspace width=&quot;thickmathspace&quot; /><mi>a</mi><mo>,</mo><mspace width=&quot;thickmathspace&quot; /><mi>r</mi><mo>,</mo><mspace width=&quot;thickmathspace&quot; /><msup><mi>s</mi><mo>&amp;#x2032;</mo></msup><mo stretchy=&quot;false&quot;>)</mo></math>" role="presentation" style="font-size: 113%; position: relative;"><span id="MJXc-Node-1194" class="mjx-math" aria-hidden="true"><span id="MJXc-Node-1195" class="mjx-mrow"><span id="MJXc-Node-1196" class="mjx-mo"><span class="mjx-char MJXc-TeX-main-R" style="padding-top: 0.445em; padding-bottom: 0.611em;">(</span></span><span id="MJXc-Node-1197" class="mjx-mi"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.224em; padding-bottom: 0.279em;">s</span></span><span id="MJXc-Node-1198" class="mjx-mo"><span class="mjx-char MJXc-TeX-main-R" style="margin-top: -0.163em; padding-bottom: 0.556em;">,</span></span><span id="MJXc-Node-1199" class="mjx-mspace" style="width: 0.278em; height: 0px;"></span><span id="MJXc-Node-1200" class="mjx-mi MJXc-space1"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.224em; padding-bottom: 0.279em;">a</span></span><span id="MJXc-Node-1201" class="mjx-mo"><span class="mjx-char MJXc-TeX-main-R" style="margin-top: -0.163em; padding-bottom: 0.556em;">,</span></span><span id="MJXc-Node-1202" class="mjx-mspace" style="width: 0.278em; height: 0px;"></span><span id="MJXc-Node-1203" class="mjx-mi MJXc-space1"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.224em; padding-bottom: 0.279em;">r</span></span><span id="MJXc-Node-1204" class="mjx-mo"><span class="mjx-char MJXc-TeX-main-R" style="margin-top: -0.163em; padding-bottom: 0.556em;">,</span></span><span id="MJXc-Node-1205" class="mjx-mspace" style="width: 0.278em; height: 0px;"></span><span id="MJXc-Node-1206" class="mjx-msup MJXc-space1"><span class="mjx-base"><span id="MJXc-Node-1207" class="mjx-mi"><span class="mjx-char MJXc-TeX-math-I" style="padding-top: 0.224em; padding-bottom: 0.279em;">s</span></span></span><span class="mjx-sup" style="font-size: 70.7%; vertical-align: 0.513em; padding-left: 0px; padding-right: 0.071em;"><span id="MJXc-Node-1208" class="mjx-mo" style=""><span class="mjx-char MJXc-TeX-main-R" style="padding-top: 0.279em; padding-bottom: 0.335em;">′</span></span></span></span><span id="MJXc-Node-1209" class="mjx-mo"><span class="mjx-char MJXc-TeX-main-R" style="padding-top: 0.445em; padding-bottom: 0.611em;">)</span></span></span></span><span class="MJX_Assistive_MathML" role="presentation"><math xmlns="http://www.w3.org/1998/Math/MathML"><mo stretchy="false">(</mo><mi>s</mi><mo>,</mo><mspace width="thickmathspace"></mspace><mi>a</mi><mo>,</mo><mspace width="thickmathspace"></mspace><mi>r</mi><mo>,</mo><mspace width="thickmathspace"></mspace><msup><mi>s</mi><mo>′</mo></msup><mo stretchy="false">)</mo></math></span></span><script type="math/tex" id="MathJax-Element-962">(s, \; a, \; r, \; s')</script></span> tuple per drone per turn.</p><p>Another possible approach would have been to just use an RL approach that can deal with big/continuous action spaces like some <em>Actor Critic</em> methods, but that would have been beyond the scope of this project.</p><h3 id="Code-Structure"><a class="anchor hidden-xs" href="#Code-Structure" title="Code-Structure"><span class="octicon octicon-link"></span></a>Code Structure</h3><p>We used the starter package from the <a href="https://2016.halite.io/downloads.html" target="_blank" rel="noopener">Halite Challenge</a> to get going. This provides us with a game environment<span class="mathjax"><span class="MathJax_Preview" style="color: inherit;"></span><span id="MathJax-Element-955-Frame" class="mjx-chtml MathJax_CHTML" tabindex="0" data-mathml="<math xmlns=&quot;http://www.w3.org/1998/Math/MathML&quot;><msup><mi></mi><mo>&amp;#x2217;</mo></msup></math>" role="presentation" style="font-size: 113%; position: relative;"><span id="MJXc-Node-1173" class="mjx-math" aria-hidden="true"><span id="MJXc-Node-1174" class="mjx-mrow"><span id="MJXc-Node-1175" class="mjx-msubsup"><span class="mjx-base"><span id="MJXc-Node-1176" class="mjx-mi"><span class="mjx-char"></span></span></span><span class="mjx-sup" style="font-size: 70.7%; vertical-align: 0.513em; padding-left: 0px; padding-right: 0.071em;"><span id="MJXc-Node-1177" class="mjx-mo" style=""><span class="mjx-char MJXc-TeX-main-R" style="padding-top: 0.169em; padding-bottom: 0.335em;">∗</span></span></span></span></span></span><span class="MJX_Assistive_MathML" role="presentation"><math xmlns="http://www.w3.org/1998/Math/MathML"><msup><mi></mi><mo>∗</mo></msup></math></span></span><script type="math/tex" id="MathJax-Element-955">^*</script></span> and templates for the competing bots. The bots are able to communicate with the game environment via stdout. When playing they can get the game map from the environment and may send a list of moves back for the squares that they own in the game map which the game environment incorporates and uses to update the map.<br>
+All code can be found on github in  the <a href="https://github.com/sselbach/production-seizer" target="_blank" rel="noopener">working_branch</a> branch.</p><p><span class="mathjax"><span class="MathJax_Preview" style="color: inherit;"></span><span id="MathJax-Element-914-Frame" class="mjx-chtml MathJax_CHTML" tabindex="0" data-mathml="<math xmlns=&quot;http://www.w3.org/1998/Math/MathML&quot;><msup><mi></mi><mo>&amp;#x2217;</mo></msup></math>" role="presentation" style="font-size: 113%; position: relative;"><span id="MJXc-Node-978" class="mjx-math" aria-hidden="true"><span id="MJXc-Node-979" class="mjx-mrow"><span id="MJXc-Node-980" class="mjx-msubsup"><span class="mjx-base"><span id="MJXc-Node-981" class="mjx-mi"><span class="mjx-char"></span></span></span><span class="mjx-sup" style="font-size: 70.7%; vertical-align: 0.513em; padding-left: 0px; padding-right: 0.071em;"><span id="MJXc-Node-982" class="mjx-mo" style=""><span class="mjx-char MJXc-TeX-main-R" style="padding-top: 0.169em; padding-bottom: 0.335em;">∗</span></span></span></span></span></span><span class="MJX_Assistive_MathML" role="presentation"><math xmlns="http://www.w3.org/1998/Math/MathML"><msup><mi></mi><mo>∗</mo></msup></math></span></span><script type="math/tex" id="MathJax-Element-914">^*</script></span> <em>See Appendix for more information on technical struggles with this</em></p><h3 id="Overview-of-important-modules"><a class="anchor hidden-xs" href="#Overview-of-important-modules" title="Overview-of-important-modules"><span class="octicon octicon-link"></span></a>Overview of important modules:</h3><table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Function</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/sselbach/production-seizer/blob/working_branch/rl_bot.py" target="_blank" rel="noopener">rl_bot.py</a></td>
+<td>Interface between the game environment and the DQN.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/sselbach/production-seizer/blob/working_branch/window.py" target="_blank" rel="noopener">window.py</a></td>
+<td>Handles the near surroundings (windows) for the single owned squares of the bot. Used as input for DQN.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/sselbach/production-seizer/blob/working_branch/reward.py" target="_blank" rel="noopener">reward.py</a></td>
+<td>Contains variations of reward functions used for training the DQN.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/sselbach/production-seizer/blob/working_branch/replay_buffer.py" target="_blank" rel="noopener">replay_buffer.py</a></td>
+<td>Saving trajectories for training the DQN with experience replay.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/sselbach/production-seizer/blob/working_branch/dqn.py" target="_blank" rel="noopener">dqn.py</a></td>
+<td>Contains the definition of the network architecture of our DQN and the training procedure. It also handles loading and saving of models.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/sselbach/production-seizer/blob/working_branch/hyperparameters.py" target="_blank" rel="noopener">hyperparameters.py</a></td>
+<td>Specifies all the hyperparameters used, general ones as well as ones specific for training eg. model saving directory and learning rate.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/sselbach/production-seizer/blob/working_branch/trainings_manager.py" target="_blank" rel="noopener">trainings_manager.py</a></td>
+<td>Takes current epsilon value and training steps across episodes.</td>
+</tr>
+</tbody>
+</table><h3 id="Training-procedure-outline"><a class="anchor hidden-xs" href="#Training-procedure-outline" title="Training-procedure-outline"><span class="octicon octicon-link"></span></a>Training procedure outline:</h3><ul>
+<li><strong>Outer loop: episodes</strong></li>
+</ul><ol>
+<li>Loading the most current model (loading all trainable parameters) in the model saving directory. If this directory is empty, initialize random parameters by making a forward pass with random input.</li>
+<li>Start the game and interact with the game environment. <a href="https://github.com/sselbach/production-seizer/blob/working_branch/rl_bot.py" target="_blank" rel="noopener">rl_bot.py</a>
+<ul>
+<li><strong>Inner loop: steps</strong></li>
+</ul>
+<ol>
+<li>Get all the windows for squares owned (old state)</li>
+<li>Pass windows through the DQN to get an action for each owned square or choose a random action with the probability of Epsilon</li>
+<li>Sent moves to game environment</li>
+<li>Get the now states from the game environment</li>
+<li>Compute the rewards</li>
+<li>Save old states, actions, rewards and new states to the replay buffer</li>
+<li>Trainings step:
+<ol>
+<li>Sample a batch from the replay buffer (batch size dependen on the parameters set)</li>
+<li>Get current estimates for old states</li>
+<li>Calculate new estimates with values of new states, actions, and rewards.</li>
+<li>Calculate loss between old estimates and new estimates.</li>
+<li>Optimize Network using Gradient Descent</li>
+<li>Add loss and reward from that batch to our data handler.</li>
+</ol>
+</li>
+</ol>
+</li>
+<li>If a game ends, save the current model in the specified directory, aswell as the replay buffer and the trainings manager and produce a plot monitoring the training process in that episode.</li>
+</ol><h2 id="Results"><a class="anchor hidden-xs" href="#Results" title="Results"><span class="octicon octicon-link"></span></a>Results</h2><h3 id="Architecture-construction"><a class="anchor hidden-xs" href="#Architecture-construction" title="Architecture-construction"><span class="octicon octicon-link"></span></a>Architecture construction</h3><h4 id="Global-vs-local-evaluation"><a class="anchor hidden-xs" href="#Global-vs-local-evaluation" title="Global-vs-local-evaluation"><span class="octicon octicon-link"></span></a>Global vs local evaluation</h4><p>For solving the challenge we thought about two different approaches. One approach was to consider the whole game map as one state and output a 30 * 30 * 5 cube that corresponds to the q-values of each individual square for all actions. Sadly this did not work, we assume because the model could not generalize on such a large data structure.<br>
+Therefore we came up with a more local approach. Instead of passing the whole game map as a state through the network, we use the network to estimate the q-value of only one owned square by using the relevant square as well as neighbors up to a specified distance in our parameters file as the input. This means that the distance parameter creates a trade-off between accuracy of our estimates (since small distance means less data to base estimation on) and computational solvability by the network (more iput -&gt; more difficult to train).<br>
+Furthermore we lose the ability for squares to work together which adds another level of uncertainty that is not easy for the network to circumvent.<br>
+The <a href="https://github.com/sselbach/production-seizer/blob/working_branch/window.py" target="_blank" rel="noopener">window.py</a> file contains all relevant functions needed for our local approach.</p><pre><code class="python hljs"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">get_owned_squares</span><span class="hljs-params">(game_map, id)</span>:</span>
+    <span class="hljs-string">"""
+    Returns all currently owned squares by id that have a strength &gt; 0
+    """</span>
+
+    <span class="hljs-comment"># Run through gamemap and check if condition is met</span>
+    <span class="hljs-comment"># add correct squares to lists</span>
+    owned_squares = []
+    <span class="hljs-keyword">for</span> y <span class="hljs-keyword">in</span> range(<span class="hljs-number">30</span>):
+        <span class="hljs-keyword">for</span> x <span class="hljs-keyword">in</span> range(<span class="hljs-number">30</span>):
+            current = game_map.contents[y][x]
+            <span class="hljs-keyword">if</span>(current.owner == id <span class="hljs-keyword">and</span> current.strength != <span class="hljs-number">0</span>):
+                owned_squares.append(current)
+
+    <span class="hljs-keyword">return</span> owned_squares
+
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">prepare_for_input</span><span class="hljs-params">(game_map, squares, id)</span>:</span>
+    <span class="hljs-string">"""
+    Converts owned squares into states that can be used by the network
+    """</span>
+
+    <span class="hljs-comment"># Initialize array with correct shape</span>
+    states = np.zeros((len(squares), NEIGHBORS * <span class="hljs-number">2</span>))
+
+    <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> range(len(squares)):
+
+        <span class="hljs-comment"># Get neighbors with distance defined in hyperparameters from the owned square</span>
+        n = game_map.neighbors(squares[i], DISTANCE, <span class="hljs-keyword">True</span>)
+        j = <span class="hljs-number">0</span>
+        <span class="hljs-comment"># Run through all neighbors add add strength and production part to corresponding array slice</span>
+        <span class="hljs-keyword">for</span> current_n <span class="hljs-keyword">in</span> n:
+
+            states[i, j] = current_n.strength  <span class="hljs-keyword">if</span> current_n.owner == id <span class="hljs-keyword">else</span> -current_n.strength
+            states[i, j + NEIGHBORS] = current_n.production <span class="hljs-keyword">if</span> current_n.owner == id <span class="hljs-keyword">else</span> -current_n.production
+
+            j += <span class="hljs-number">1</span>
+    <span class="hljs-keyword">return</span> states
+
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">get_targets</span><span class="hljs-params">(game_map, squares, actions)</span>:</span>
+    <span class="hljs-string">"""
+    Return new squares after applying corresponding actions
+    """</span>
+    targets = []
+
+    <span class="hljs-comment"># Apply action to each individual square and add to list</span>
+    <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> range(len(squares)):
+        new_square = game_map.get_target(squares[i], actions[i])
+        targets.append(new_square)
+
+    <span class="hljs-keyword">return</span> targets
+
+</code></pre><h4 id="Network-structure"><a class="anchor hidden-xs" href="#Network-structure" title="Network-structure"><span class="octicon octicon-link"></span></a>Network structure</h4><p>The structure we ended up with is rather simple. We only have two Dense layers with 8 units each using a leaky RELU. In the output layer we have 5 units for our 5 different actions a square can take. In the output layer we are not using an activation function. We used the Adam optimizer and the huber loss for training. For more information see: <a href="https://github.com/sselbach/production-seizer/blob/working_branch/dqn.py" target="_blank" rel="noopener">dqn.py</a></p><pre><code class="python hljs"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">__init__</span><span class="hljs-params">(self)</span>:</span>
+        super().__init__()
+
+        self.dense1 = tf.keras.layers.Dense(units=<span class="hljs-number">8</span>, activation=tf.nn.leaky_relu)
+
+        self.dense2 = tf.keras.layers.Dense(units=<span class="hljs-number">8</span>, activation=tf.nn.leaky_relu)
+
+        self.output_layer = tf.keras.layers.Dense(units=<span class="hljs-number">5</span>, activation=<span class="hljs-keyword">None</span>)
+        
+        self.optimizer = tf.keras.optimizers.Adam(LEARNING_RATE)
+
+        self.loss_function = tf.keras.losses.Huber()
+</code></pre><h4 id="Reward-function"><a class="anchor hidden-xs" href="#Reward-function" title="Reward-function"><span class="octicon octicon-link"></span></a>Reward function</h4><p>Like our network our <a href="https://github.com/sselbach/production-seizer/blob/working_branch/reward.py" target="_blank" rel="noopener">reward function</a> works on a local level. We came up with this reward function that compares the relevant squares old position with the positions it would be after moving in the old game map and the new one. Then we distinguish between 3 different things. Either the square lost to another square in battle, meaning the square at its new position is owned by another party, in which case we grant a negative reward to that square or the square wins against an enemy or neutral square, meaning its old target position was not owned by it but its new target position is. If none of these two cases apply we just grant the square a small negative reward. This reward function is by far not optimized but creating an optimal version is very difficult, due to reasons mentioned above.</p><pre><code class="python hljs"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">reward</span><span class="hljs-params">(owned_squares, old_targets, new_targets, id)</span>:</span>
+    <span class="hljs-string">"""
+    Calculates reward of all owned squares in regards to party id
+    """</span>
+
+    rewards = []
+    
+    <span class="hljs-comment"># Iterate over all squares</span>
+    <span class="hljs-keyword">for</span> i <span class="hljs-keyword">in</span> range(len(owned_squares)):
+        s = owned_squares[i]
+        o = old_targets[i]
+        n = new_targets[i]
+        
+        <span class="hljs-comment"># Get reward for relevant situation</span>
+        <span class="hljs-keyword">if</span>(n.owner != id):
+            rewards.append(<span class="hljs-number">-5</span>)
+
+        <span class="hljs-keyword">elif</span>(o.owner != id <span class="hljs-keyword">and</span> n.owner == id):
+            rewards.append(<span class="hljs-number">10</span>)
+
+        <span class="hljs-keyword">else</span>:
+            rewards.append(<span class="hljs-number">-0.001</span>)
+
+    <span class="hljs-keyword">return</span> rewards
+</code></pre><h3 id="Training"><a class="anchor hidden-xs" href="#Training" title="Training"><span class="octicon octicon-link"></span></a>Training</h3><p>We trained the network for around 500 episodes. This plot below shows the average loss and reward in each episode.</p><p><img src="https://github.com/sselbach/production-seizer/blob/working_branch/results/data_training/Training_483.0.png?raw=true" alt="hier steht ihre werbung"><br>
+<img src="https://github.com/sselbach/production-seizer/blob/working_branch/results/final_replay.PNG?raw=true" alt="hier nicht"></p><p>What you can see in the replays <a href="https://github.com/sselbach/production-seizer/tree/working_branch/results" target="_blank" rel="noopener">(result folder)</a> that instead of always going in one direction, the bot learns to wait with moving squares before they are strong enough to win against an enemy square. Important to note is that the final bot has an epsilon of 0 therefore never making random choices instead of 0.8 in the beginning of training.</p><h4 id="Parameters"><a class="anchor hidden-xs" href="#Parameters" title="Parameters"><span class="octicon octicon-link"></span></a>Parameters</h4><p>These are the parameters we used. We decay epsilon after every episode during training and the variable NEIGHBORS is used to determine the size of the input for our neural network.</p><table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>EPSILON_START</td>
+<td>0.8</td>
+</tr>
+<tr>
+<td>EPSILON_DECAY</td>
+<td>0.98</td>
+</tr>
+<tr>
+<td>EPSILON_END</td>
+<td>0.1</td>
+</tr>
+<tr>
+<td>GAMMA</td>
+<td>0.99</td>
+</tr>
+<tr>
+<td>BATCH_SIZE</td>
+<td>256</td>
+</tr>
+<tr>
+<td>LEARNING_RATE</td>
+<td>0.001</td>
+</tr>
+<tr>
+<td>BUFFER_SIZE</td>
+<td>100000</td>
+</tr>
+<tr>
+<td>DISTANCE</td>
+<td>3</td>
+</tr>
+<tr>
+<td>NEIGHBORS</td>
+<td>2 * DISTANCE * DISTANCE + 2 * DISTANCE + 1</td>
+</tr>
+</tbody>
+</table><h2 id="Conclusion"><a class="anchor hidden-xs" href="#Conclusion" title="Conclusion"><span class="octicon octicon-link"></span></a>Conclusion</h2><p>Although, as seen in the replays, the bot does learn something and also is able to play the game, it is by far not optimal yet. First of all the bot struggles with spawnpoints where the strength of the neutral squares is quite high, since an owned square would  rather like to suicide than to wait until it can defeat the neutral square. This can possible be circumvented by making the reward function more sophisticated. Furthermore there is no synchronisation between squares so sometimes it might happen that two squares make good moves individually but after they are executed they make the global state worse.<br>
+Lastly we did not train or fight against winning bots from the original challenge since these are most definitely better because they are handcrafted and therefore optimized or trained on already existing bots.</p><p>However, given that the bot new nothing about the game to begin with, we are impressed with how much it was able to learn. In that sense, the approach was a success and has potential to grow a lot better with further improvements.</p><h2 id="Usage"><a class="anchor hidden-xs" href="#Usage" title="Usage"><span class="octicon octicon-link"></span></a>Usage</h2><p><strong>Note: We currently only support Ubuntu 64-bit. Other Linux distros may work, but Windows definitely won’t.</strong></p><h3 id="Setting-up-a-conda-environments"><a class="anchor hidden-xs" href="#Setting-up-a-conda-environments" title="Setting-up-a-conda-environments"><span class="octicon octicon-link"></span></a>Setting up a conda environments</h3><p>In order to run the code we need a tensorflow environment with some extra packages. For that see the requirements.txt ifle. If you have a cuda enabled GPU you can choose to run tensorflow on your GPU by choosing requirements_gpu.txt. You then need to add the key word “gpu” when running the scripts.</p><pre><code class="console hljs">(base) username@dev<span class="hljs-symbol">:~/production-seizer</span>$ conda create --name &lt;env_name&gt; --file requirements.txt
+(base) username@dev<span class="hljs-symbol">:~/production-seizer</span>$ conda actvate &lt;env_name&gt; <span class="hljs-comment"># activates the environment</span>
+(&lt;env_name&gt;) username@dev<span class="hljs-symbol">:~/production-seizer</span>$ conda deactivate <span class="hljs-comment"># deactivates environment</span>
+(base) username@dev<span class="hljs-symbol">:~/production-seizer</span>$
+</code></pre><h3 id="Modified-Halite-Binary"><a class="anchor hidden-xs" href="#Modified-Halite-Binary" title="Modified-Halite-Binary"><span class="octicon octicon-link"></span></a>Modified Halite Binary</h3><p>The repository contains a file <code>halite_mod</code>, which is the main game binary. Because we have modified and recompiled it, it may not work on your system. In that case, you have to <strong>compile halite from source</strong>.</p><p>For that, open a terminal, navigate to the <code>halite_source</code> directory inside the repository, and run <code>make</code>. This should produce a binary called <code>halite</code>, which you can use to replace the <code>halite_mod</code> one that is currently at the repo’s top level.</p><h3 id="Running-Training"><a class="anchor hidden-xs" href="#Running-Training" title="Running-Training"><span class="octicon octicon-link"></span></a>Running Training</h3><p>To run the training script please create directory for saving models and one for saving the results. Then adjust the following parameters in the <a href="http://hyperparameters.py" target="_blank" rel="noopener">hyperparameters.py</a>:</p><pre><code class="python hljs">MODEL_PATH = <span class="hljs-string">"&lt;model_dir&gt;/"</span>
+WRITER_DIRECTORY = <span class="hljs-string">'&lt;result_dir&gt;/'</span>
+</code></pre><p>Execute the training shell script in the terminal:</p><pre><code class="console hljs">(&lt;env_name&gt;) usr@dev<span class="hljs-symbol">:~/production-seizer</span>$ ./run_training.sh  <span class="hljs-comment"># if usinig cuda add: gpu</span>
+</code></pre><p>In the “production-seizer” folder .hlt files will be created which one can uploaded to <a href="https://2016.halite.io/local_visualizer.html" target="_blank" rel="noopener">a visualizer</a> to see a replay of the game.<br>
+In the result directory a .csv will be created containing loss and reward for each time step and also averages over one episode which are also automatically plotted and saved.</p><h3 id="Running-Final-Bot"><a class="anchor hidden-xs" href="#Running-Final-Bot" title="Running-Final-Bot"><span class="octicon octicon-link"></span></a>Running Final Bot</h3><p>If you wanna see one game of our bot playing against itself just execute the <code>run_final_game.sh</code>. It uses the model saved in the folder specified in the hyperparameters. After the game ended it generates a replay file that you can visualize <a href="https://2016.halite.io/local_visualizer.html" target="_blank" rel="noopener">here</a>.</p><h2 id="Appendix"><a class="anchor hidden-xs" href="#Appendix" title="Appendix"><span class="octicon octicon-link"></span></a>Appendix</h2><h3 id="Makeshift-RL-Environment"><a class="anchor hidden-xs" href="#Makeshift-RL-Environment" title="Makeshift-RL-Environment"><span class="octicon octicon-link"></span></a>Makeshift RL Environment</h3><p>While the Halite challenge was designed with automated players in mind, there are still some technical challenges to overcome when developing a reinforcement learning based agent for this game.</p><p>Reinforcement learning requires a well defined <em>environment</em> that the agent can request the current state from and send actions to. When training an RL agent, typically the outermost instance that is run by the user is a program that contains the training loop and the agent itself. The environment runs in the background and is being told by the training loop when to perform an action, when to reset to an initial state etc. This is a very natural setup for reinforcement learning and is for example the way that the OpenAI Gym environments are used.</p><p>Halite, being a multiplayer game, had to choose a different architecture: Here the <code>halite</code> binary is the master process and starts the individual bots as sub-processes. It contains the game loop and requests actions from the bots at each turn. Crucially, the halite process <em>ends</em> at the end of a game. This presents a problem, as you typically need to train for many episodes to get any sort of sensible results.</p><p>To solve this issue with as little modification to the halite binary as possible, we opted to stick to halite’s setup, and having the bot save the training progress, as well as the replay buffer, to disk at the end of each game and load the latest save at the start of the next. However, even this required a very small modification of the halite binary, replacing a SIGKILL signal with a SIGTERM one, enabling the bot to catch the event of the game ending. Please see the usage section below on how to get the modified halite version.</p></div>
+    <div class="ui-toc dropup unselectable hidden-print" style="display:none;">
+        <div class="pull-right dropdown">
+            <a id="tocLabel" class="ui-toc-label btn btn-default" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false" title="Table of content">
+                <i class="fa fa-bars"></i>
+            </a>
+            <ul id="ui-toc" class="ui-toc-dropdown dropdown-menu" aria-labelledby="tocLabel">
+                <div class="toc"><ul class="nav">
+<li class=""><a href="#Solving-the-Halite-Challenge-with-a-Deep-Q-Network" title="Solving the Halite Challenge with a Deep-Q Network">Solving the Halite Challenge with a Deep-Q Network</a><ul class="nav">
+<li class=""><a href="#Introduction" title="Introduction">Introduction</a><ul class="nav">
+<li class=""><a href="#The-Rules" title="The Rules">The Rules</a></li>
+</ul>
+</li>
+<li><a href="#Background" title="Background">Background</a><ul class="nav">
+<li><a href="#What-is-a-Deep-Q-network-DQN" title="What is a Deep-Q network (DQN)?">What is a Deep-Q network (DQN)?</a></li>
+</ul>
+</li>
+<li><a href="#Our-Approach" title="Our Approach">Our Approach</a><ul class="nav">
+<li><a href="#Code-Structure" title="Code Structure">Code Structure</a></li>
+<li><a href="#Overview-of-important-modules" title="Overview of important modules:">Overview of important modules:</a></li>
+<li><a href="#Training-procedure-outline" title="Training procedure outline:">Training procedure outline:</a></li>
+</ul>
+</li>
+<li><a href="#Results" title="Results">Results</a><ul class="nav">
+<li><a href="#Architecture-construction" title="Architecture construction">Architecture construction</a></li>
+<li><a href="#Training" title="Training">Training</a></li>
+</ul>
+</li>
+<li><a href="#Conclusion" title="Conclusion">Conclusion</a></li>
+<li class=""><a href="#Usage" title="Usage">Usage</a><ul class="nav">
+<li class=""><a href="#Setting-up-a-conda-environments" title="Setting up a conda environments">Setting up a conda environments</a></li>
+<li><a href="#Modified-Halite-Binary" title="Modified Halite Binary">Modified Halite Binary</a></li>
+<li><a href="#Running-Training" title="Running Training">Running Training</a></li>
+<li><a href="#Running-Final-Bot" title="Running Final Bot">Running Final Bot</a></li>
+</ul>
+</li>
+<li class=""><a href="#Appendix" title="Appendix">Appendix</a><ul class="nav">
+<li class=""><a href="#Makeshift-RL-Environment" title="Makeshift RL Environment">Makeshift RL Environment</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div><div class="toc-menu"><a class="expand-toggle" href="#">Expand all</a><a class="back-to-top" href="#">Back to top</a><a class="go-to-bottom" href="#">Go to bottom</a></div>
+            </ul>
+        </div>
+    </div>
+    <div id="ui-toc-affix" class="ui-affix-toc ui-toc-dropdown unselectable hidden-print" data-spy="affix" style="top:17px;display:none;" null null>
+        <div class="toc"><ul class="nav">
+<li class=""><a href="#Solving-the-Halite-Challenge-with-a-Deep-Q-Network" title="Solving the Halite Challenge with a Deep-Q Network">Solving the Halite Challenge with a Deep-Q Network</a><ul class="nav">
+<li class=""><a href="#Introduction" title="Introduction">Introduction</a><ul class="nav">
+<li class=""><a href="#The-Rules" title="The Rules">The Rules</a></li>
+</ul>
+</li>
+<li><a href="#Background" title="Background">Background</a><ul class="nav">
+<li><a href="#What-is-a-Deep-Q-network-DQN" title="What is a Deep-Q network (DQN)?">What is a Deep-Q network (DQN)?</a></li>
+</ul>
+</li>
+<li><a href="#Our-Approach" title="Our Approach">Our Approach</a><ul class="nav">
+<li><a href="#Code-Structure" title="Code Structure">Code Structure</a></li>
+<li><a href="#Overview-of-important-modules" title="Overview of important modules:">Overview of important modules:</a></li>
+<li><a href="#Training-procedure-outline" title="Training procedure outline:">Training procedure outline:</a></li>
+</ul>
+</li>
+<li><a href="#Results" title="Results">Results</a><ul class="nav">
+<li><a href="#Architecture-construction" title="Architecture construction">Architecture construction</a></li>
+<li><a href="#Training" title="Training">Training</a></li>
+</ul>
+</li>
+<li><a href="#Conclusion" title="Conclusion">Conclusion</a></li>
+<li class=""><a href="#Usage" title="Usage">Usage</a><ul class="nav">
+<li class=""><a href="#Setting-up-a-conda-environments" title="Setting up a conda environments">Setting up a conda environments</a></li>
+<li><a href="#Modified-Halite-Binary" title="Modified Halite Binary">Modified Halite Binary</a></li>
+<li><a href="#Running-Training" title="Running Training">Running Training</a></li>
+<li><a href="#Running-Final-Bot" title="Running Final Bot">Running Final Bot</a></li>
+</ul>
+</li>
+<li class=""><a href="#Appendix" title="Appendix">Appendix</a><ul class="nav">
+<li class=""><a href="#Makeshift-RL-Environment" title="Makeshift RL Environment">Makeshift RL Environment</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div><div class="toc-menu"><a class="expand-toggle" href="#">Expand all</a><a class="back-to-top" href="#">Back to top</a><a class="go-to-bottom" href="#">Go to bottom</a></div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gist-embed/2.6.0/gist-embed.min.js" integrity="sha256-KyF2D6xPIJUW5sUDSs93vWyZm+1RzIpKCexxElmxl8g=" crossorigin="anonymous" defer></script>
+    <script>
+        var markdown = $(".markdown-body");
+        //smooth all hash trigger scrolling
+        function smoothHashScroll() {
+            var hashElements = $("a[href^='#']").toArray();
+            for (var i = 0; i < hashElements.length; i++) {
+                var element = hashElements[i];
+                var $element = $(element);
+                var hash = element.hash;
+                if (hash) {
+                    $element.on('click', function (e) {
+                        // store hash
+                        var hash = this.hash;
+                        if ($(hash).length <= 0) return;
+                        // prevent default anchor click behavior
+                        e.preventDefault();
+                        // animate
+                        $('body, html').stop(true, true).animate({
+                            scrollTop: $(hash).offset().top
+                        }, 100, "linear", function () {
+                            // when done, add hash to url
+                            // (default click behaviour)
+                            window.location.hash = hash;
+                        });
+                    });
+                }
+            }
+        }
+
+        smoothHashScroll();
+        var toc = $('.ui-toc');
+        var tocAffix = $('.ui-affix-toc');
+        var tocDropdown = $('.ui-toc-dropdown');
+        //toc
+        tocDropdown.click(function (e) {
+            e.stopPropagation();
+        });
+
+        var enoughForAffixToc = true;
+
+        function generateScrollspy() {
+            $(document.body).scrollspy({
+                target: ''
+            });
+            $(document.body).scrollspy('refresh');
+            if (enoughForAffixToc) {
+                toc.hide();
+                tocAffix.show();
+            } else {
+                tocAffix.hide();
+                toc.show();
+            }
+            $(document.body).scroll();
+        }
+
+        function windowResize() {
+            //toc right
+            var paddingRight = parseFloat(markdown.css('padding-right'));
+            var right = ($(window).width() - (markdown.offset().left + markdown.outerWidth() - paddingRight));
+            toc.css('right', right + 'px');
+            //affix toc left
+            var newbool;
+            var rightMargin = (markdown.parent().outerWidth() - markdown.outerWidth()) / 2;
+            //for ipad or wider device
+            if (rightMargin >= 133) {
+                newbool = true;
+                var affixLeftMargin = (tocAffix.outerWidth() - tocAffix.width()) / 2;
+                var left = markdown.offset().left + markdown.outerWidth() - affixLeftMargin;
+                tocAffix.css('left', left + 'px');
+            } else {
+                newbool = false;
+            }
+            if (newbool != enoughForAffixToc) {
+                enoughForAffixToc = newbool;
+                generateScrollspy();
+            }
+        }
+        $(window).resize(function () {
+            windowResize();
+        });
+        $(document).ready(function () {
+            windowResize();
+            generateScrollspy();
+        });
+
+        //remove hash
+        function removeHash() {
+            window.location.hash = '';
+        }
+
+        var backtotop = $('.back-to-top');
+        var gotobottom = $('.go-to-bottom');
+
+        backtotop.click(function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            if (scrollToTop)
+                scrollToTop();
+            removeHash();
+        });
+        gotobottom.click(function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            if (scrollToBottom)
+                scrollToBottom();
+            removeHash();
+        });
+
+        var toggle = $('.expand-toggle');
+        var tocExpand = false;
+
+        checkExpandToggle();
+        toggle.click(function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            tocExpand = !tocExpand;
+            checkExpandToggle();
+        })
+
+        function checkExpandToggle () {
+            var toc = $('.ui-toc-dropdown .toc');
+            var toggle = $('.expand-toggle');
+            if (!tocExpand) {
+                toc.removeClass('expand');
+                toggle.text('Expand all');
+            } else {
+                toc.addClass('expand');
+                toggle.text('Collapse all');
+            }
+        }
+
+        function scrollToTop() {
+            $('body, html').stop(true, true).animate({
+                scrollTop: 0
+            }, 100, "linear");
+        }
+
+        function scrollToBottom() {
+            $('body, html').stop(true, true).animate({
+                scrollTop: $(document.body)[0].scrollHeight
+            }, 100, "linear");
+        }
+    </script>
+</body>
+
+</html>
