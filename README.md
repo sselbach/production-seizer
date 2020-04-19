@@ -52,7 +52,7 @@ hyperparameters.py| Specifies all the hyperparameters used, general ones as well
    6. Save trajectory to replay buffer
 		 * **Training loop:**
 		 1. Sample a batch from the replay buffer (batch size dependen on the parameters set)
-		 2. Perform gradient descent on that batch to minimize this loss
+		 2. Perform gradient descent on that batch to minimize this loss ## TO DO: further explanation / code snippet?
 		 3. Store the loss and the reward in the replay buffer for future batch samples
 3. If a game ends, save the current model in the specified directory and produce a plot monitoring the training process in that episode
 
@@ -60,14 +60,19 @@ hyperparameters.py| Specifies all the hyperparameters used, general ones as well
 
 ### First Steps
 We started with a simple artificial neural network, containg the usal input layer, a filtering layer followed by two Dense layers with rectified linear unit (ReLU) as activation function. We optimized by using the Adam function and the loss function was computed with the Huber function.
+//TO DO: maybe code snippet of init architecture (in telegram)
+
+//TO DO: what kind of reward function used?
 
 After 1000 Episodes the Reward/Loss ratio looked like that: 
 First DQN Reward/Loss Graph| First Game against the selfplaybot
 -----|-----
 ![hier steht ihre werbung](First_graph.jpg)|![hier nicht](First_Visual.gif)
 
-As is seen, the bots perform... well lets just say, they do something.
+As is seen, the bots perform... well lets just say, they do something. 
 Here a short list of the parameters used:
+
+// TO DO: some of the hyperparameters have to be explained further
 
 Parameter | Value
 ------|-----
@@ -84,5 +89,29 @@ NEIGHBORS | 2 * DISTANCE * DISTANCE + 2 * DISTANCE + 1
 ### Improving
 
 
+## Usage
 
+### Setting up a conda environments
+In order to run the code we need a tensorflow environment with some extra packages. For that see the requirements.txt ifle. If you have a cuda enabled GPU you can choose to run tensorflow on your GPU by choosing requirements_gpu.txt. You then need to add the key word "gpu" when running the scripts.
 
+```console
+(base) username@dev:~/production-seizer$ conda create --name <env_name> --file requirements.txt
+(base) username@dev:~/production-seizer$ conda actvate <env_name> # activates the environment
+(<env_name>) username@dev:~/production-seizer$ conda deactivate # deactivates environment
+(base) username@dev:~/production-seizer$
+```
+### The Thing wtih compiling Halte //TO DO
+
+### Running Training
+To run the training script please create directory for saving models and one for saving the results. Then adjust the following parameters in the hyperparameters.py:
+
+```python
+MODEL_PATH = "<model_dir>/"
+WRITER_DIRECTORY = '<result_dir>/'
+```
+Execute the training shell script in the terminal:
+```console
+(<env_name>) usr@dev:~/production-seizer$ ./run_training.sh  # if usinig cuda add: gpu
+```
+In the "production-seizer" folder .hlt will be created which one upload to [a visualizer](https://2016.halite.io/local_visualizer.html) to see a replay of the game.
+In the result directory a .csv will be created containing loss and reward for each time step and also averages over one episode which are also automatically plotted and saved. 
