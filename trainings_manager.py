@@ -2,6 +2,9 @@ from hyperparameters import EPSILON_START
 import pickle
 
 class TrainingsManager:
+    """
+    Saves current epsilon as well as current timestep.
+    """
 
     def __init__(self):
         try:
@@ -11,8 +14,7 @@ class TrainingsManager:
             open("manager.pickle", "a").close()
             self.content = {
             "epsilon" : EPSILON_START,
-            "timesteps" : 0,
-            "episodes" : 0
+            "timesteps" : 0
             }
         except EOFError:
             return

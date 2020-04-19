@@ -2,7 +2,6 @@ import numpy as np
 import pickle
 from hyperparameters import BUFFER_SIZE
 import logging
-import json
 
 class ReplayBuffer:
     """

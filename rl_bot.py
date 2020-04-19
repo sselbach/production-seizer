@@ -14,7 +14,6 @@ import random
 from datetime import datetime
 
 import config
-from config import key
 
 from progress import Writer
 from trainings_manager import TrainingsManager
@@ -25,7 +24,7 @@ LOG_FILENAME = 'debug.log'
 logging.basicConfig(filename=LOG_FILENAME,level=logging.DEBUG)
 logging.warning(f"starting new episode at {datetime.now().strftime('%d-%m-%Y_%I-%M-%S_%p')}")
 
-writer = Writer("data", "HelloWorld")
+writer = Writer("data", "Training")
 
 myID, game_map = hlt.get_init()
 hlt.send_init("ProductionSeizer")

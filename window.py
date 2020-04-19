@@ -42,33 +42,6 @@ def prepare_for_input(game_map, squares, id):
         #logging.debug("")
     return states
 
-def prepare_for_input_conv(game_map, id):
-
-    state = np.zeros((30, 30, 3))
-
-    for y in range(30):
-        for x in range(30):
-            current = game_map.contents[y][x]
-
-            state[y,x,0] = current.strength
-            state[y,x,2] = current.production
-
-            if(current.owner == id):
-                state[y, x, 1] = 1
-            elif(current.owner != 0):
-                state[y, x, 1] = -1
-            else:
-                state[y, x, 1] = 0
-
-    state[:,:,0] /= 255
-    state[:,:,0] -= 0.5
-    state[:,:,2] /= 17
-    state[:,:,2] -= 0.5
-
-    return state
-
-
-
 def get_targets(game_map, squares, actions):
     """
     Return new squares after applying corresponding actions

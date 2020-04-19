@@ -2,15 +2,19 @@ import logging
 import numpy as np
 
 def reward(owned_squares, old_targets, new_targets, id):
-
+    """
+    Calculate reward of all owned squares based on party id
+    """
     rewards = []
 
+    # Iterate over all squares
     for i in range(len(owned_squares)):
 
         s = owned_squares[i]
         o = old_targets[i]
         n = new_targets[i]
 
+        # Get reward for relevant situation
         if(n.owner != id):
             rewards.append(-5)
 

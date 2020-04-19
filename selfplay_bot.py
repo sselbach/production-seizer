@@ -8,7 +8,6 @@ import window
 import tensorflow as tf
 import logging
 import config
-from config import key
 from datetime import datetime
 
 LOG_FILENAME = 'debug_selfplay.log'
@@ -22,8 +21,6 @@ hlt.send_init("SelfplayBot")
 model = DQN()
 model.load_last(MODEL_PATH)
 
-logging.debug(model)
-
 game_map.get_frame()
 
 while True:
@@ -32,8 +29,6 @@ while True:
     old_states = window.prepare_for_input(game_map, owned_squares, myID)
 
     directions = model.get_actions(old_states, 0.1)
-
-    #logging.debug(directions)
 
     moves = [Move(square, move) for square, move in zip(owned_squares, directions)]
 
