@@ -5,6 +5,7 @@ The hyperparameters used by all different parts of our algorithms
 # General
 MODEL_PATH = "models/current/"
 WRITER_DIRECTORY = 'experiments/test/'
+FINAL_PATH = 'results/trainedmodel/'
 
 # Model
 EPSILON_START = 0.8

@@ -1,13 +1,6 @@
 __pycache__
 .ipynb_checkpoints
 *.log
-*.hlt
 *.pyc
 *.exe
 *.pickle
-halite
-halite_mod
-models
-halite_mod
-experiments
-*.csv
